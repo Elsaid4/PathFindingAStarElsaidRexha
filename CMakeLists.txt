@@ -9,7 +9,8 @@ FetchContent_MakeAvailable(SFML)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h)
+add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h
+        Node.h)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
