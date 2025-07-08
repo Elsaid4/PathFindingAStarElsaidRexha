@@ -460,3 +460,11 @@ Parsed CXX implicit link information from above output:
   implicit fwks: []
 
 
+Determining if the include file dinput.h exists passed with the following output:
+Change Dir: C:/Users/elsai/CLionProjects/PathFindingAStarElsaidRexha/cmake-build-debug/CMakeFiles/CMakeScratch/TryCompile-r1zo1r
+
+Run Build Command(s):C:/Program Files/JetBrains/CLion 2022.3.2/bin/ninja/win/x64/ninja.exe cmTC_2eb08 && [1/2] Building C object CMakeFiles/cmTC_2eb08.dir/CheckIncludeFile.c.obj
+[2/2] Linking C executable cmTC_2eb08.exe
+
+
+

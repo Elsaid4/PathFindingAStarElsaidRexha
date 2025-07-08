@@ -8,7 +8,7 @@
 	"installers" : [],
 	"paths" : 
 	{
-		"build" : ".",
-		"source" : "."
+		"build" : "_deps/sfml-build/src/SFML",
+		"source" : "cmake-build-debug/_deps/sfml-src/src/SFML"
 	}
 }
