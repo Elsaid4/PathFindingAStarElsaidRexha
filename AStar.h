@@ -11,7 +11,7 @@
 
 class AStar {
 public:
-    static std::vector<sf::Vector2i> findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal);
+    static std::pair<std::vector<sf::Vector2i>, std::vector<sf::Vector2i>> findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal);
 };
 
 float heuristic(const sf::Vector2i& a, const sf::Vector2i& b);

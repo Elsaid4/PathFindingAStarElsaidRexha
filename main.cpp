@@ -3,15 +3,34 @@
 #include <random>
 
 #include "Map.h"
+#include "AStar.h"
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 800), "A* Pathfinder");
-    int mapWidth = 40;
-    int mapHeight = 40;
+    int mapWidth = 200;
+    int mapHeight = 200;
     Map map(mapWidth, mapHeight);
 
-    int numObstacles = 500;
+    int numObstacles = 10000;
     map.generateObstacles(numObstacles);
+
+    auto result = AStar::findPath(map, map.getStart(), map.getGoal());
+
+    if (result.first.empty()) {
+        std::cout << "No path found.\n";
+        //return 0;
+    }
+
+    for (const auto& cell : result.second) {
+        map.setCellState(cell.x, cell.y, CellState::Visited);
+    }
+
+    for (const auto& cell : result.first) {
+        map.setCellState(cell.x, cell.y, CellState::Path);
+    }
+
+
+
 
     while (window.isOpen()) {
         sf::Event event;
@@ -25,6 +44,20 @@ int main() {
             // Rigenera gli ostacoli
             map.reset();
             map.generateObstacles(numObstacles);
+
+            auto result = AStar::findPath(map, map.getStart(), map.getGoal());
+
+            if (result.first.empty()) {
+                std::cout << "No path found.\n";
+            }
+
+            for (const auto& cell : result.second) {
+                map.setCellState(cell.x, cell.y, CellState::Visited);
+            }
+
+            for (const auto& cell : result.first) {
+                map.setCellState(cell.x, cell.y, CellState::Path);
+            }
         }
         map.draw(window);
         window.display();

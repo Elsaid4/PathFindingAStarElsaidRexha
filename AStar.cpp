@@ -12,7 +12,7 @@ float heuristic(const sf::Vector2i& a, const sf::Vector2i& b) {
     return static_cast<float>(std::abs(a.x - b.x) + std::abs(a.y - b.y)); // Manhattan
 }
 
-std::vector<sf::Vector2i> AStar::findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal) {
+std::pair<std::vector<sf::Vector2i>, std::vector<sf::Vector2i>> AStar::findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal) {
     int width = map.getWidth();
     int height = map.getHeight();
 
@@ -40,7 +40,17 @@ std::vector<sf::Vector2i> AStar::findPath(Map& map, const sf::Vector2i& start, c
                 cur = cameFrom[cur.y * width + cur.x];
             }
             std::reverse(path.begin(), path.end());
-            return path;
+
+            std::vector<sf::Vector2i> visitedNodes;
+            for (int y = 0; y < height; ++y) {
+                for (int x = 0; x < width; ++x) {
+                    if (closedSet[y][x]) {
+                        visitedNodes.push_back({x, y});
+                    }
+                }
+            }
+
+            return {path, visitedNodes};
         }
 
         if (closedSet[current.y][current.x]) continue;
