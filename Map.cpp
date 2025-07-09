@@ -50,7 +50,7 @@ void Map::reset() {
     grid[Y - 1][X - 1] = CellState::Goal;
 }
 
-void Map::GenerateObstacles(int numObstacles) {
+void Map::generateObstacles(int numObstacles) {
     std::random_device rd;
     std::mt19937 g(rd());
 
@@ -67,4 +67,12 @@ void Map::GenerateObstacles(int numObstacles) {
 
     for (int i = 0; i < numObstacles && i < coords.size(); i++)
         setObstacle(coords[i].first, coords[i].second);
+}
+
+int Map::getWidth() {
+    return X;
+}
+
+int Map::getHeight() {
+    return Y;
 }

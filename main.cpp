@@ -11,7 +11,7 @@ int main() {
     Map map(mapWidth, mapHeight);
 
     int numObstacles = 500;
-    map.GenerateObstacles(numObstacles);
+    map.generateObstacles(numObstacles);
 
     while (window.isOpen()) {
         sf::Event event;
@@ -24,7 +24,7 @@ int main() {
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             // Rigenera gli ostacoli
             map.reset();
-            map.GenerateObstacles(numObstacles);
+            map.generateObstacles(numObstacles);
         }
         map.draw(window);
         window.display();

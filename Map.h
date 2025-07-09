@@ -18,7 +18,9 @@ public:
     void setObstacle(int x, int y);
     void draw(sf::RenderWindow& window);
     void reset();
-    void GenerateObstacles(int numObstacles);
+    void generateObstacles(int numObstacles);
+    int getWidth();
+    int getHeight();
 
 
 private:
