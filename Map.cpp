@@ -21,7 +21,7 @@ bool Map::isWalkable(int x, int y) const {
     if (x < 0 || x >= X || y < 0 || y >= Y) {
         return false;
     }
-    return grid[y][x] == CellState::Walkable || grid[y][x] == CellState::Start || grid[y][x] == CellState::Goal;
+    return grid[x][y] == CellState::Walkable || grid[x][y] == CellState::Start || grid[x][y] == CellState::Goal;
 }
 
 void Map::setCellState(int x, int y, CellState state) {
