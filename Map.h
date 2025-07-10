@@ -20,8 +20,10 @@ public:
     void draw(sf::RenderWindow& window);
     void reset();
     void generateObstacles(int numObstacles);
-    int getWidth();
-    int getHeight();
+    int getWidth() const;
+    int getHeight() const;
+    int getCellSize() const;
+    void setCellSize(int size);
     sf::Vector2i getStart() const;
     sf::Vector2i getGoal() const;
 

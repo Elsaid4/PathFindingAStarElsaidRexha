@@ -7,13 +7,16 @@
 
 int main() {
     sf::RenderWindow window(sf::VideoMode(800, 800), "A* Pathfinder");
-    int mapWidth = 200;
-    int mapHeight = 200;
+    int mapWidth = 10;
+    int mapHeight = 10;
     Map map(mapWidth, mapHeight);
 
-    int numObstacles = 10000;
+    map.setCellSize(window.getSize().x / mapWidth);
+
+    int numObstacles = 0;
     map.generateObstacles(numObstacles);
 
+    /*
     auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
     if (result.first.empty()) {
@@ -28,9 +31,7 @@ int main() {
     for (const auto& cell : result.first) {
         map.setCellState(cell.x, cell.y, CellState::Path);
     }
-
-
-
+    */
 
     while (window.isOpen()) {
         sf::Event event;
@@ -59,6 +60,21 @@ int main() {
                 map.setCellState(cell.x, cell.y, CellState::Path);
             }
         }
+
+        if (event.mouseButton.button == sf::Mouse::Left) {
+            int x = event.mouseButton.x / map.getCellSize();
+            int y = event.mouseButton.y / map.getCellSize();
+            if (map.isWalkable(x, y)) {
+                map.setCellState(x, y, CellState::Obstacle);
+            }
+        } else if (event.mouseButton.button == sf::Mouse::Right) {
+            int x = event.mouseButton.x / map.getCellSize();
+            int y = event.mouseButton.y / map.getCellSize();
+            if (map.isWalkable(x, y)) {
+                map.setCellState(x, y, CellState::Walkable);
+            }
+        }
+
         map.draw(window);
         window.display();
     }
