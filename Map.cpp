@@ -11,9 +11,6 @@ Map::Map(int x, int y) : X(x), Y(y) {
     grid[Y - 1][X - 1] = CellState::Goal;
     start = sf::Vector2i(0, 0);
     goal = sf::Vector2i(X - 1, Y - 1);
-    if (!font.loadFromFile("../Font/OpenSans-VariableFont_wdth,wght.ttf")) {
-        std::cerr << "Error loading font\n";
-    }
     CellSize = 0;
 }
 
@@ -33,7 +30,15 @@ void Map::setCellState(int x, int y, CellState state) {
     }
 }
 
-void Map::draw(sf::RenderWindow& window) {
+bool Map::canPlaceObstacle(int x, int y) const {
+    return grid[x][y] != CellState::Start && grid[x][y] != CellState::Goal && grid[x][y] != CellState::Obstacle;
+}
+
+bool Map::canPlaceWalkable(int x, int y) const {
+    return grid[x][y] == CellState::Obstacle;
+}
+
+void Map::draw(sf::RenderWindow& window, sf::Font& font) {
     for (int i = 0; i < X; i++) {
         for (int j = 0; j < Y; j++) {
             sf::RectangleShape cell(sf::Vector2f(CellSize,CellSize));
@@ -133,5 +138,25 @@ CellState Map::getCellState(int x, int y) const {
     } else {
         std::cerr << "Coordinates out of bounds: (" << x << ", " << y << ")\n";
         return CellState::Walkable;
+    }
+}
+
+void Map::setStart(const sf::Vector2i& pos) {
+    if (isWalkable(pos.x, pos.y)) {
+        grid[start.x][start.y] = CellState::Walkable; // Reset previous start
+        start = pos;
+        grid[start.x][start.y] = CellState::Start;
+    } else {
+        std::cerr << "Cannot set start at (" << pos.x << ", " << pos.y << ")\n";
+    }
+}
+
+void Map::setGoal(const sf::Vector2i& pos) {
+    if (isWalkable(pos.x, pos.y)) {
+        grid[goal.x][goal.y] = CellState::Walkable; // Reset previous goal
+        goal = pos;
+        grid[goal.x][goal.y] = CellState::Goal;
+    } else {
+        std::cerr << "Cannot set goal at (" << pos.x << ", " << pos.y << ")\n";
     }
 }

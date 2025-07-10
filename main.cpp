@@ -7,38 +7,68 @@
 
 void PrintMapConsole(const Map &map);
 
+sf::Font font;
+
 int main() {
-    sf::RenderWindow window(sf::VideoMode(800, 800), "A* Pathfinder");
+    int width = 800;
+    int height = 800;
+    sf::RenderWindow window(sf::VideoMode(width, height + 50), "A* Pathfinder");
     window.setFramerateLimit(60);
-    int mapWidth = 10;
-    int mapHeight = 10;
+
+
+    if (!font.loadFromFile("../Font/OpenSans-VariableFont_wdth,wght.ttf")) {
+        std::cerr << "Error loading font\n";
+    }
+
+    int mapWidth = 40;
+    int mapHeight = 40;
     Map map(mapWidth, mapHeight);
 
-    map.setCellSize(window.getSize().x / mapWidth);
+    map.setCellSize(width / mapWidth);
 
-    int numObstacles = 10;
+    int numObstacles = 100;
     map.generateObstacles(numObstacles);
 
+    /*
     std::cout << "Mappa iniziale\n";
     PrintMapConsole(map);
+    */
 
     auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
-    if (result.first.empty()) {
+    if (!result.first.empty()) {
+        for (const auto& cell : result.second) {
+            map.setCellState(cell.x, cell.y, CellState::Visited);
+        }
+
+        for (const auto& cell : result.first) {
+            map.setCellState(cell.x, cell.y, CellState::Path);
+        }
+    }
+    else{
         std::cout << "No path found.\n";
     }
 
-    for (const auto& cell : result.second) {
-        map.setCellState(cell.x, cell.y, CellState::Visited);
-    }
-
-    for (const auto& cell : result.first) {
-        map.setCellState(cell.x, cell.y, CellState::Path);
-    }
-
     bool dWasPressed = false;
+    bool sWasPressed = false;
+    bool gWasPressed = false;
 
     bool stateHasChanged = false;
+
+    bool startSetMode = false;
+    bool goalSetMode = false;
+
+    sf::Text text;
+    text.setFont(font);
+    text.setCharacterSize(16);
+    text.setFillColor(sf::Color::Black);
+
+    sf::RectangleShape startMode(sf::Vector2f(10, 10));
+    startMode.setPosition(775, (float)height + 7);
+
+    sf::RectangleShape goalMode(sf::Vector2f(10, 10));
+    goalMode.setPosition(775, (float)height + 30);
+
 
     while (window.isOpen()) {
         sf::Event event;
@@ -47,35 +77,79 @@ int main() {
                 window.close();
         }
 
-        window.clear();
+        window.clear(sf::Color::White);
+
+        text.setString("Press 'R' to reset the map\nPress 'D' to toggle debug mode");
+        text.setPosition(10, (float)height);
+        window.draw(text);
+
+        text.setString("Press 'Left Click' to set an obstacle\nPress 'Right Click' to set a walkable cell");
+        text.setPosition(260, (float)height);
+        window.draw(text);
+
+        text.setString("Press 'S' to set start point\nPress 'G' to set goal point");
+        text.setPosition(570, (float)height);
+        window.draw(text);
+
+
+        startMode.setFillColor(startSetMode ? sf::Color::Green : sf::Color::Red);
+        window.draw(startMode);
+
+        goalMode.setFillColor(goalSetMode ? sf::Color::Green : sf::Color::Red);
+        window.draw(goalMode);
 
         if(stateHasChanged){
             map.resetForRecalculation();
+            /*
             std::cout << "Prima\n";
             PrintMapConsole(map);
             std::cout << "\n\n\n";
-
-
+            */
 
             result = AStar::findPath(map, map.getStart(), map.getGoal());
 
-            if (result.first.empty()) {
+            if (!result.first.empty()) {
+                for (const auto& cell : result.second) {
+                    map.setCellState(cell.x, cell.y, CellState::Visited);
+                }
+
+                for (const auto& cell : result.first) {
+                    map.setCellState(cell.x, cell.y, CellState::Path);
+                }
+            }
+            else{
                 std::cout << "No path found.\n";
             }
 
-            for (const auto& cell : result.second) {
-                map.setCellState(cell.x, cell.y, CellState::Visited);
-            }
-
-            for (const auto& cell : result.first) {
-                map.setCellState(cell.x, cell.y, CellState::Path);
-            }
             stateHasChanged = false;
 
+            /*
             std::cout << "DOPO\n";
             PrintMapConsole(map);
             std::cout << "\n\n\n";
+            */
         }
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+            if (!sWasPressed) {
+                startSetMode = !startSetMode;
+                goalSetMode = false;
+                sWasPressed = true;
+            }
+        } else {
+            sWasPressed = false;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::G)) {
+            if (!gWasPressed) {
+                goalSetMode = !goalSetMode;
+                startSetMode = false;
+                gWasPressed = true;
+            }
+        } else {
+            gWasPressed = false;
+        }
+
 
         // Gestione del reset della mappa
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
@@ -95,20 +169,32 @@ int main() {
             dWasPressed = false;
         }
 
-
+        // Gestione piazzamento degli ostacoli e celle walkable
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         mousePos.x /= (int)map.getCellSize();
         mousePos.y /= (int)map.getCellSize();
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
             if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-                if(map.getCellState(mousePos.x, mousePos.y) != CellState::Start && map.getCellState(mousePos.x, mousePos.y) != CellState::Goal){
+                if(map.canPlaceWalkable(mousePos.x, mousePos.y)){
                     //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") walkable\n";
                     map.setCellState(mousePos.x, mousePos.y, CellState::Walkable);
                     stateHasChanged = true;
                 }
             }
             else if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-                if(map.getCellState(mousePos.x, mousePos.y) != CellState::Start && map.getCellState(mousePos.x, mousePos.y) != CellState::Goal){
+                if(startSetMode){
+                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") start\n";
+                    map.setCellState(mousePos.x, mousePos.y, CellState::Start);
+                    map.setStart(mousePos);
+                    stateHasChanged = true;
+                }
+                else if(goalSetMode){
+                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") goal\n";
+                    map.setCellState(mousePos.x, mousePos.y, CellState::Goal);
+                    map.setGoal(mousePos);
+                    stateHasChanged = true;
+                }
+                else if(map.canPlaceObstacle(mousePos.x, mousePos.y)){
                     //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") ostacolo\n";
                     map.setCellState(mousePos.x, mousePos.y, CellState::Obstacle);
                     stateHasChanged = true;
@@ -119,7 +205,7 @@ int main() {
         }
 
 
-        map.draw(window);
+        map.draw(window, font);
         window.display();
     }
 
