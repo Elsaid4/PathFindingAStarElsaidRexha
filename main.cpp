@@ -13,7 +13,7 @@ int main() {
     int width = 800;
     int height = 800;
     int menuHeight = 70;
-    sf::RenderWindow window(sf::VideoMode(width, height + menuHeight), "A* Pathfinder");
+    sf::RenderWindow window(sf::VideoMode(width, height + menuHeight), "A* Pathfinder",sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
 
 
@@ -70,7 +70,7 @@ int main() {
     text.setCharacterSize(16);
     text.setFillColor(sf::Color::Black);
 
-    sf::Vector2i buttonSize(10, 10);
+    sf::Vector2i buttonSize(15, 15);
     sf::RectangleShape startMode(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2i startModePosition(775, height + 7);
     startMode.setPosition((float)startModePosition.x, (float)startModePosition.y);
@@ -79,6 +79,7 @@ int main() {
     sf::Vector2i goalModePosition(775, height + 30);
     goalMode.setPosition((float)goalModePosition.x, (float)goalModePosition.y);
 
+    sf::RectangleShape hoverShape(sf::Vector2f((float)map.getCellSize(), (float)map.getCellSize()));
 
     while (window.isOpen()) {
         sf::Event event;
@@ -237,8 +238,36 @@ int main() {
             }
         }
 
-
         map.draw(window, font);
+
+        if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
+            hoverShape.setPosition((float)mousePos.x * map.getCellSize(), (float)mousePos.y * map.getCellSize());
+            hoverShape.setFillColor(sf::Color(0, 0, 0, 50));
+            hoverShape.setOutlineColor(sf::Color::Black);
+            hoverShape.setOutlineThickness(2);
+        }
+        else{
+            hoverShape.setPosition(-100, -100);
+        }
+
+        if(sf::Mouse::getPosition(window).x >= goalModePosition.x && sf::Mouse::getPosition(window).x <= goalModePosition.x + buttonSize.x
+           && sf::Mouse::getPosition(window).y >= goalModePosition.y && sf::Mouse::getPosition(window).y <= goalModePosition.y + buttonSize.y)
+        {
+            hoverShape.setSize(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+            hoverShape.setPosition(sf::Vector2f((float)goalModePosition.x, (float)goalModePosition.y));
+        }
+        else if(sf::Mouse::getPosition(window).x >= startModePosition.x && sf::Mouse::getPosition(window).x <= startModePosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= startModePosition.y && sf::Mouse::getPosition(window).y <= startModePosition.y + buttonSize.y)
+        {
+            hoverShape.setSize(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+            hoverShape.setPosition(sf::Vector2f((float)startModePosition.x, (float)startModePosition.y));
+        }
+        else{
+            hoverShape.setSize(sf::Vector2f((float)map.getCellSize(), (float)map.getCellSize()));
+        }
+
+        window.draw(hoverShape);
+
         window.display();
     }
 
