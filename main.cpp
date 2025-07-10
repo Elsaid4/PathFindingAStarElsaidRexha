@@ -36,12 +36,14 @@ int main() {
     */
 
     int pathLength = 0;
+    int numVisitedCells = 0;
 
     auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
     if (!result.first.empty()) {
         for (const auto& cell : result.second) {
             map.setCellState(cell.x, cell.y, CellState::Visited);
+            numVisitedCells++;
         }
 
         for (const auto& cell : result.first) {
@@ -56,6 +58,7 @@ int main() {
     bool dWasPressed = false;
     bool sWasPressed = false;
     bool gWasPressed = false;
+    bool rWasPressed = false;
 
     bool stateHasChanged = false;
 
@@ -100,6 +103,9 @@ int main() {
         text.setString("Path length: " + std::to_string(pathLength));
         text.setPosition(10, (float)height + 45);
         window.draw(text);
+        text.setString("Visited cells: " + std::to_string(numVisitedCells));
+        text.setPosition(150, (float)height + 45);
+        window.draw(text);
         text.setStyle(sf::Text::Regular);
 
 
@@ -120,8 +126,10 @@ int main() {
             result = AStar::findPath(map, map.getStart(), map.getGoal());
 
             if (!result.first.empty()) {
+                numVisitedCells = 0;
                 for (const auto& cell : result.second) {
                     map.setCellState(cell.x, cell.y, CellState::Visited);
+                    numVisitedCells++;
                 }
                 pathLength = 0;
                 for (const auto& cell : result.first) {
@@ -165,10 +173,15 @@ int main() {
 
         // Gestione del reset della mappa
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
-            map.reset();
-            map.generateObstacles(numObstacles);
-
-            stateHasChanged = true;
+            if (!rWasPressed) {
+                map.reset();
+                map.generateObstacles(numObstacles);
+                pathLength = 0;
+                rWasPressed = true;
+                stateHasChanged = true;
+            }
+        } else {
+            rWasPressed = false;
         }
 
         // Gestione della modalità debug
