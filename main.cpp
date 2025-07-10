@@ -12,7 +12,8 @@ sf::Font font;
 int main() {
     int width = 800;
     int height = 800;
-    sf::RenderWindow window(sf::VideoMode(width, height + 50), "A* Pathfinder");
+    int menuHeight = 70;
+    sf::RenderWindow window(sf::VideoMode(width, height + menuHeight), "A* Pathfinder");
     window.setFramerateLimit(60);
 
 
@@ -34,6 +35,8 @@ int main() {
     PrintMapConsole(map);
     */
 
+    int pathLength = 0;
+
     auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
     if (!result.first.empty()) {
@@ -43,6 +46,7 @@ int main() {
 
         for (const auto& cell : result.first) {
             map.setCellState(cell.x, cell.y, CellState::Path);
+            pathLength++;
         }
     }
     else{
@@ -91,6 +95,13 @@ int main() {
         text.setPosition(570, (float)height);
         window.draw(text);
 
+        // Make it bold
+        text.setStyle(sf::Text::Bold);
+        text.setString("Path length: " + std::to_string(pathLength));
+        text.setPosition(10, (float)height + 45);
+        window.draw(text);
+        text.setStyle(sf::Text::Regular);
+
 
         startMode.setFillColor(startSetMode ? sf::Color::Green : sf::Color::Red);
         window.draw(startMode);
@@ -112,9 +123,10 @@ int main() {
                 for (const auto& cell : result.second) {
                     map.setCellState(cell.x, cell.y, CellState::Visited);
                 }
-
+                pathLength = 0;
                 for (const auto& cell : result.first) {
                     map.setCellState(cell.x, cell.y, CellState::Path);
+                    pathLength++;
                 }
             }
             else{
