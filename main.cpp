@@ -70,11 +70,14 @@ int main() {
     text.setCharacterSize(16);
     text.setFillColor(sf::Color::Black);
 
-    sf::RectangleShape startMode(sf::Vector2f(10, 10));
-    startMode.setPosition(775, (float)height + 7);
+    sf::Vector2i buttonSize(10, 10);
+    sf::RectangleShape startMode(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2i startModePosition(775, height + 7);
+    startMode.setPosition((float)startModePosition.x, (float)startModePosition.y);
 
-    sf::RectangleShape goalMode(sf::Vector2f(10, 10));
-    goalMode.setPosition(775, (float)height + 30);
+    sf::RectangleShape goalMode(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2i goalModePosition(775, height + 30);
+    goalMode.setPosition((float)goalModePosition.x, (float)goalModePosition.y);
 
 
     while (window.isOpen()) {
@@ -98,7 +101,6 @@ int main() {
         text.setPosition(570, (float)height);
         window.draw(text);
 
-        // Make it bold
         text.setStyle(sf::Text::Bold);
         text.setString("Path length: " + std::to_string(pathLength));
         text.setPosition(10, (float)height + 45);
@@ -150,7 +152,11 @@ int main() {
             */
         }
 
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)) {
+        // Gestione della modalità di piazzamento del punto di partenza
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
+            (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                && sf::Mouse::getPosition(window).x >= startModePosition.x && sf::Mouse::getPosition(window).x <= startModePosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= startModePosition.y && sf::Mouse::getPosition(window).y <= startModePosition.y + buttonSize.y) {
             if (!sWasPressed) {
                 startSetMode = !startSetMode;
                 goalSetMode = false;
@@ -160,7 +166,11 @@ int main() {
             sWasPressed = false;
         }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::G)) {
+        // Gestione della modalità di piazzamento del punto di arrivo
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
+        (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                && sf::Mouse::getPosition(window).x >= goalModePosition.x && sf::Mouse::getPosition(window).x <= goalModePosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= goalModePosition.y && sf::Mouse::getPosition(window).y <= goalModePosition.y + buttonSize.y) {
             if (!gWasPressed) {
                 goalSetMode = !goalSetMode;
                 startSetMode = false;
@@ -224,9 +234,7 @@ int main() {
                     map.setCellState(mousePos.x, mousePos.y, CellState::Obstacle);
                     stateHasChanged = true;
                 }
-
             }
-
         }
 
 
