@@ -12,20 +12,23 @@ float heuristic(const sf::Vector2i& a, const sf::Vector2i& b) {
     return static_cast<float>(std::abs(a.x - b.x) + std::abs(a.y - b.y)); // Manhattan
 }
 
-std::pair<std::vector<sf::Vector2i>, std::vector<sf::Vector2i>> AStar::findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal) {
-    int width = map.getWidth();
+std::pair<std::vector<sf::Vector2i>, std::vector<sf::Vector2i>>
+AStar::findPath(Map& map, const sf::Vector2i& start, const sf::Vector2i& goal)
+{
+    int width  = map.getWidth();
     int height = map.getHeight();
 
-    std::priority_queue<Node, std::vector<Node>, std::greater<Node>> openSet;
-    std::vector<std::vector<float>> gScore(height, std::vector<float>(width, std::numeric_limits<float>::infinity()));
+    std::priority_queue<Node, std::vector<Node>, std::greater<>> openSet;
+    std::vector<std::vector<float>> gScore(width,std::vector<float>(height,std::numeric_limits<float>::infinity()));
+    std::vector<std::vector<bool>> closedSet(width,std::vector<bool>(height, false));
     std::unordered_map<int, sf::Vector2i> cameFrom;
-    std::vector<std::vector<bool>> closedSet(height, std::vector<bool>(width, false));
 
-    gScore[start.y][start.x] = 0.0f;
-    openSet.push({start.x, start.y, 0.0f, heuristic(start, goal)});
+    gScore[start.x][start.y] = 0.f;
+    openSet.emplace(start.x, start.y, 0.f, heuristic(start, goal));
 
-    std::vector<sf::Vector2i> directions = {
-            {0, -1}, {-1, 0}, {1, 0}, {0, 1}
+    const std::vector<sf::Vector2i> directions = {
+            { 1,  0}, {-1,  0},  // destra, sinistra
+            { 0,  1}, { 0, -1}   // giù, su
     };
 
     while (!openSet.empty()) {
@@ -37,41 +40,38 @@ std::pair<std::vector<sf::Vector2i>, std::vector<sf::Vector2i>> AStar::findPath(
             sf::Vector2i cur = goal;
             while (cur != start) {
                 path.push_back(cur);
-                cur = cameFrom[cur.y * width + cur.x];
+                cur = cameFrom[cur.x * height + cur.y];
             }
             std::reverse(path.begin(), path.end());
 
-            std::vector<sf::Vector2i> visitedNodes;
-            for (int y = 0; y < height; ++y) {
-                for (int x = 0; x < width; ++x) {
-                    if (closedSet[y][x]) {
-                        visitedNodes.push_back({x, y});
-                    }
-                }
-            }
+            std::vector<sf::Vector2i> visited;
+            for (int x = 0; x < width; ++x)
+                for (int y = 0; y < height; ++y)
+                    if (closedSet[x][y])
+                        visited.emplace_back(x, y);
 
-            return {path, visitedNodes};
+            return { path, visited };
         }
 
-        if (closedSet[current.y][current.x]) continue;
-        closedSet[current.y][current.x] = true;
+        if (closedSet[current.x][current.y]) continue;
+        closedSet[current.x][current.y] = true;
 
-        for (auto& dir : directions) {
+        for (const auto& dir : directions) {
             int nx = current.x + dir.x;
             int ny = current.y + dir.y;
 
             if (!map.isWalkable(nx, ny)) continue;
 
-            float tentativeG = gScore[current.y][current.x] + 1.0f;
+            float tentativeG = gScore[current.x][current.y] + 1.f;
 
-            if (tentativeG < gScore[ny][nx]) {
-                gScore[ny][nx] = tentativeG;
+            if (tentativeG < gScore[nx][ny]) {
+                gScore[nx][ny] = tentativeG;
                 float h = heuristic({nx, ny}, goal);
-                openSet.push({nx, ny, tentativeG, h});
-                cameFrom[ny * width + nx] = {current.x, current.y};
+                openSet.emplace(nx, ny, tentativeG, h);
+                cameFrom[nx * height + ny] = { current.x, current.y };
             }
         }
     }
 
-    return {}; // Nessun percorso trovato
+    return {}; // nessun percorso trovato
 }

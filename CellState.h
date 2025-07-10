@@ -25,9 +25,9 @@ static sf::Color GetCellColor(CellState state) {
         case CellState::Goal:
             return sf::Color::Magenta;
         case CellState::Path:
-            return sf::Color(128, 0, 128); // Viola
+            return {128, 0, 128}; // Viola
         case CellState::Visited:
-            return sf::Color(200, 200, 200); // Grigio
+            return {200, 200, 200}; // Grigio
         default:
             return sf::Color::Black;
     }

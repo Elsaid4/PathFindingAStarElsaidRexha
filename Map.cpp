@@ -14,6 +14,7 @@ Map::Map(int x, int y) : X(x), Y(y) {
     if (!font.loadFromFile("../Font/OpenSans-VariableFont_wdth,wght.ttf")) {
         std::cerr << "Error loading font\n";
     }
+    CellSize = 0;
 }
 
 bool Map::isWalkable(int x, int y) const {
@@ -35,7 +36,7 @@ void Map::setCellState(int x, int y, CellState state) {
 void Map::draw(sf::RenderWindow& window) {
     for (int i = 0; i < X; i++) {
         for (int j = 0; j < Y; j++) {
-            sf::RectangleShape cell(sf::Vector2f(CellSize, CellSize));
+            sf::RectangleShape cell(sf::Vector2f(CellSize,CellSize));
             cell.setOutlineColor(sf::Color::Black);
             cell.setOutlineThickness(1);
             cell.setPosition(i * CellSize, j * CellSize);
@@ -76,6 +77,13 @@ void Map::reset() {
     grid[X - 1][Y - 1] = CellState::Goal;
 }
 
+void Map::resetForRecalculation() {
+    for (int i = 0; i < X; i++)
+        for (int j = 0; j < Y; j++)
+            if (grid[i][j] == CellState::Visited || grid[i][j] == CellState::Path)
+                grid[i][j] = CellState::Walkable;
+}
+
 void Map::generateObstacles(int numObstacles) {
     std::random_device rd;
     std::mt19937 g(rd());
@@ -103,11 +111,11 @@ int Map::getHeight() const{
     return Y;
 }
 
-int Map::getCellSize() const {
+float Map::getCellSize() const {
     return CellSize;
 }
 
-void Map::setCellSize(int size) {
+void Map::setCellSize(float size) {
     CellSize = size;
 }
 
@@ -117,4 +125,13 @@ sf::Vector2i Map::getStart() const {
 
 sf::Vector2i Map::getGoal() const {
     return goal;
+}
+
+CellState Map::getCellState(int x, int y) const {
+    if (x >= 0 && x < X && y >= 0 && y < Y) {
+        return grid[y][x];
+    } else {
+        std::cerr << "Coordinates out of bounds: (" << x << ", " << y << ")\n";
+        return CellState::Walkable;
+    }
 }
