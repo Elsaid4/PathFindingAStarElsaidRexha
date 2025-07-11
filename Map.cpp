@@ -38,12 +38,15 @@ bool Map::canPlaceWalkable(int x, int y) const {
     return grid[x][y] == CellState::Obstacle;
 }
 
-void Map::draw(sf::RenderWindow& window, sf::Font& font) {
+void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder) {
     for (int i = 0; i < X; i++) {
         for (int j = 0; j < Y; j++) {
             sf::RectangleShape cell(sf::Vector2f(CellSize,CellSize));
-            cell.setOutlineColor(sf::Color::Black);
-            cell.setOutlineThickness(1);
+            if (drawBorder) {
+                cell.setOutlineColor(sf::Color::Black);
+                cell.setOutlineThickness(1);
+            }
+
             cell.setPosition(i * CellSize, j * CellSize);
 
             cell.setFillColor(GetCellColor(grid[i][j]));

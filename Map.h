@@ -16,7 +16,7 @@ public:
     Map(int width, int height);
     bool isWalkable(int x, int y) const;
     void setCellState(int x, int y, CellState state);
-    void draw(sf::RenderWindow& window, sf::Font& font);
+    void draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder = true);
     void reset();
     void resetForRecalculation();
     void generateObstacles(int numObstacles);
