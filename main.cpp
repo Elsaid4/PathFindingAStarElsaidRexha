@@ -79,7 +79,17 @@ int main() {
     sf::Vector2i goalModePosition(775, height + 30);
     goalMode.setPosition((float)goalModePosition.x, (float)goalModePosition.y);
 
-    sf::RectangleShape hoverShape(sf::Vector2f((float)map.getCellSize(), (float)map.getCellSize()));
+    sf::RectangleShape hoverShapeCell(sf::Vector2f((float)map.getCellSize(), (float)map.getCellSize()));
+    hoverShapeCell.setFillColor(sf::Color(0, 0, 0, 50));
+    hoverShapeCell.setOutlineColor(sf::Color::Black);
+    hoverShapeCell.setOutlineThickness(2);
+
+    sf::RectangleShape hoverShapeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    hoverShapeButton.setFillColor(sf::Color(0, 0, 0, 50));
+    hoverShapeButton.setOutlineColor(sf::Color::Black);
+    hoverShapeButton.setOutlineThickness(2);
+
+
 
     while (window.isOpen()) {
         sf::Event event;
@@ -205,7 +215,9 @@ int main() {
             dWasPressed = false;
         }
 
-        // Gestione piazzamento degli ostacoli e celle walkable
+        // Gestione posizionamento delle celle
+        // Si ottiene la posizione del mouse e si verifica se è all'interno della mappa
+        // Se il tasto destro è premuto si piazza una cella walkable, altrimenti si piazza un ostacolo
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         mousePos.x /= (int)map.getCellSize();
         mousePos.y /= (int)map.getCellSize();
@@ -218,6 +230,7 @@ int main() {
                 }
             }
             else if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                // Si posiziona start/goal con il tasto sinistro. Si verifica se si è in modalità, altrimenti si piazza un ostacolo
                 if(startSetMode){
                     //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") start\n";
                     map.setCellState(mousePos.x, mousePos.y, CellState::Start);
@@ -240,33 +253,31 @@ int main() {
 
         map.draw(window, font);
 
+        // Gestione dell'hover sulle celle
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
-            hoverShape.setPosition((float)mousePos.x * map.getCellSize(), (float)mousePos.y * map.getCellSize());
-            hoverShape.setFillColor(sf::Color(0, 0, 0, 50));
-            hoverShape.setOutlineColor(sf::Color::Black);
-            hoverShape.setOutlineThickness(2);
+            hoverShapeCell.setPosition((float) mousePos.x * map.getCellSize(), (float) mousePos.y * map.getCellSize());
         }
         else{
-            hoverShape.setPosition(-100, -100);
+            hoverShapeCell.setPosition(-100, -100);
         }
 
+        // Gestione dell'hover sui bottoni
         if(sf::Mouse::getPosition(window).x >= goalModePosition.x && sf::Mouse::getPosition(window).x <= goalModePosition.x + buttonSize.x
-           && sf::Mouse::getPosition(window).y >= goalModePosition.y && sf::Mouse::getPosition(window).y <= goalModePosition.y + buttonSize.y)
+            && sf::Mouse::getPosition(window).y >= goalModePosition.y && sf::Mouse::getPosition(window).y <= goalModePosition.y + buttonSize.y)
         {
-            hoverShape.setSize(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-            hoverShape.setPosition(sf::Vector2f((float)goalModePosition.x, (float)goalModePosition.y));
+            hoverShapeButton.setPosition(sf::Vector2f((float) goalModePosition.x, (float) goalModePosition.y));
         }
         else if(sf::Mouse::getPosition(window).x >= startModePosition.x && sf::Mouse::getPosition(window).x <= startModePosition.x + buttonSize.x
                 && sf::Mouse::getPosition(window).y >= startModePosition.y && sf::Mouse::getPosition(window).y <= startModePosition.y + buttonSize.y)
         {
-            hoverShape.setSize(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-            hoverShape.setPosition(sf::Vector2f((float)startModePosition.x, (float)startModePosition.y));
+            hoverShapeButton.setPosition(sf::Vector2f((float) startModePosition.x, (float) startModePosition.y));
         }
         else{
-            hoverShape.setSize(sf::Vector2f((float)map.getCellSize(), (float)map.getCellSize()));
+            hoverShapeButton.setPosition(-100, -100);
         }
 
-        window.draw(hoverShape);
+        window.draw(hoverShapeCell);
+        window.draw(hoverShapeButton);
 
         window.display();
     }

@@ -29,9 +29,10 @@ public:
     bool canPlaceWalkable(int x, int y) const;
     sf::Vector2i getStart() const;
     sf::Vector2i getGoal() const;
-    void toggleDebugMode() { isDebugMode = !isDebugMode; }
     void setStart(const sf::Vector2i& pos);
     void setGoal(const sf::Vector2i& pos);
+    void toggleDebugMode() { isDebugMode = !isDebugMode; }
+    bool isDebug() const { return isDebugMode; }
 
 
 private:
