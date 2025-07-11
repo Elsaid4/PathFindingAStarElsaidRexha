@@ -57,7 +57,7 @@ TEST_F(MapTest, CanPlaceObstacle) {
 TEST_F(MapTest, CanPlaceWalkable) {
     EXPECT_FALSE(map.canPlaceWalkable(1, 1));
     map.setCellState(1, 1, CellState::Obstacle);
-    EXPECT_TRUE(map.canPlaceWalkable(1, 1)); // Can place walkable on obstacle
+    EXPECT_TRUE(map.canPlaceWalkable(1, 1)); // Can place walkable on an obstacle
 
     map.setCellState(1, 1, CellState::Visited);
     EXPECT_FALSE(map.canPlaceWalkable(1, 1)); // Can't place walkable on visited cell
