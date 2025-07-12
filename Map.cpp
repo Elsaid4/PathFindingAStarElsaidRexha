@@ -15,10 +15,9 @@ Map::Map(int x, int y) : X(x), Y(y) {
 }
 
 bool Map::isWalkable(int x, int y) const {
-    if (x < 0 || x >= X || y < 0 || y >= Y) {
-        return false;
-    }
-    return grid[x][y] == CellState::Walkable || grid[x][y] == CellState::Start || grid[x][y] == CellState::Goal;
+    if (x >= 0 && x < X && y >= 0 && y < Y)
+        return grid[x][y] == CellState::Walkable || grid[x][y] == CellState::Start || grid[x][y] == CellState::Goal;
+    return false;
 }
 
 void Map::setCellState(int x, int y, CellState state) {
@@ -80,9 +79,8 @@ void Map::reset() {
         for (int j = 0; j < Y; ++j)
             grid[i][j] = CellState::Walkable;
 
-
-    grid[0][0] = CellState::Start;
-    grid[X - 1][Y - 1] = CellState::Goal;
+    grid[start.x][start.y] = CellState::Start;
+    grid[goal.x][goal.y] = CellState::Goal;
 }
 
 void Map::resetForRecalculation() {

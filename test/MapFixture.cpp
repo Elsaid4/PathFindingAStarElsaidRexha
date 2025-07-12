@@ -17,19 +17,21 @@ protected:
     }
 };
 
+// Testa l'inizializzazione della mappa e il set
 TEST_F(MapTest, Initialization) {
     EXPECT_EQ(map.getWidth(), 10);
     EXPECT_EQ(map.getHeight(), 10);
     EXPECT_EQ(map.getCellState(0, 0), CellState::Start);
     EXPECT_EQ(map.getCellState(9, 9), CellState::Goal);
-}
-
-TEST_F(MapTest, CellStateInitialization) {
-    EXPECT_EQ(map.getCellState(0, 0), CellState::Start);
-    EXPECT_EQ(map.getCellState(9, 9), CellState::Goal);
     EXPECT_EQ(map.getCellState(1, 1), CellState::Walkable);
     map.setCellState(1, 1, CellState::Obstacle);
     EXPECT_EQ(map.getCellState(1, 1), CellState::Obstacle);
+    map.setCellState(1, 1, CellState::Visited);
+    EXPECT_EQ(map.getCellState(1, 1), CellState::Visited);
+    map.setCellState(1, 1, CellState::Path);
+    EXPECT_EQ(map.getCellState(1, 1), CellState::Path);
+    map.setCellState(1, 1, CellState::Walkable);
+    EXPECT_EQ(map.getCellState(1, 1), CellState::Walkable);
 }
 
 TEST_F(MapTest, IsWalkable) {
@@ -57,13 +59,13 @@ TEST_F(MapTest, CanPlaceObstacle) {
 TEST_F(MapTest, CanPlaceWalkable) {
     EXPECT_FALSE(map.canPlaceWalkable(1, 1));
     map.setCellState(1, 1, CellState::Obstacle);
-    EXPECT_TRUE(map.canPlaceWalkable(1, 1)); // Can place walkable on an obstacle
+    EXPECT_TRUE(map.canPlaceWalkable(1, 1)); // Si puo piazzare walkable solo su cella ostacolo
 
     map.setCellState(1, 1, CellState::Visited);
-    EXPECT_FALSE(map.canPlaceWalkable(1, 1)); // Can't place walkable on visited cell
+    EXPECT_FALSE(map.canPlaceWalkable(1, 1));
 
     map.setCellState(1, 1, CellState::Path);
-    EXPECT_FALSE(map.canPlaceWalkable(1, 1)); // Can't place walkable on visited cell
+    EXPECT_FALSE(map.canPlaceWalkable(1, 1));
 
     EXPECT_FALSE(map.canPlaceWalkable(0, 0)); // Start cell
     EXPECT_FALSE(map.canPlaceWalkable(9, 9)); // Goal cell
@@ -72,22 +74,25 @@ TEST_F(MapTest, CanPlaceWalkable) {
 TEST_F(MapTest, Reset) {
     map.setCellState(1, 1, CellState::Obstacle);
     map.reset();
-    EXPECT_EQ(map.getCellState(1, 1), CellState::Walkable); // Should reset to Walkable
-    EXPECT_EQ(map.getCellState(0, 0), CellState::Start); // Start cell should remain
-    EXPECT_EQ(map.getCellState(9, 9), CellState::Goal); // Goal cell should remain
+    EXPECT_EQ(map.getCellState(1, 1), CellState::Walkable); // Resetta a Walkable
+    EXPECT_EQ(map.getCellState(0, 0), CellState::Start); // Start cell rimane
+    EXPECT_EQ(map.getCellState(9, 9), CellState::Goal); // Goal cell rimane
 }
 
 TEST_F(MapTest, ResetForRecalculation) {
     map.setCellState(1, 1, CellState::Obstacle);
     map.setCellState(2, 2, CellState::Visited);
     map.setCellState(3, 3, CellState::Path);
-    map.resetForRecalculation();
-    EXPECT_EQ(map.getCellState(1, 1), CellState::Obstacle); // Should reset to Walkable
-    EXPECT_EQ(map.getCellState(2, 2), CellState::Walkable); // Visited should reset to Walkable
-    EXPECT_EQ(map.getCellState(3, 3), CellState::Walkable); // Path should reset to Walkable
+    map.setStart(sf::Vector2i(4, 4));
+    map.setGoal(sf::Vector2i(5, 5));
 
-    EXPECT_EQ(map.getCellState(0, 0), CellState::Start); // Start cell should remain
-    EXPECT_EQ(map.getCellState(9, 9), CellState::Goal); // Goal cell should remain
+    map.resetForRecalculation();
+    EXPECT_EQ(map.getCellState(1, 1), CellState::Obstacle); // Gli ostacoli dovrebbero rimanere
+    EXPECT_EQ(map.getCellState(2, 2), CellState::Walkable); // Visited dovrebbe resettare a Walkable
+    EXPECT_EQ(map.getCellState(3, 3), CellState::Walkable); // Path dovrebbe resettare a Walkable
+
+    EXPECT_EQ(map.getCellState(4, 4), CellState::Start); // Start cell rimane
+    EXPECT_EQ(map.getCellState(5, 5), CellState::Goal); // Goal cell rimane
 }
 
 TEST_F(MapTest, GenerateObstacles) {
@@ -123,4 +128,13 @@ TEST_F(MapTest, ToggleDebugMode) {
     EXPECT_TRUE(map.isDebug());
     map.toggleDebugMode();
     EXPECT_FALSE(map.isDebug());
+}
+
+TEST_F(MapTest, Draw) {
+    sf::RenderWindow window(sf::VideoMode(800, 600), "Map Test");
+    sf::Font font;
+    ASSERT_TRUE(font.loadFromFile("../../Font/OpenSans-VariableFont_wdth,wght.ttf")) << "Failed to load font";
+
+    map.draw(window, font);
+    window.close();
 }

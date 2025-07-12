@@ -124,7 +124,7 @@ int main() {
         text.setPosition(10, (float)height + 65);
         window.draw(text);
         text.setString("Visited cells: " + std::to_string(numVisitedCells));
-        text.setPosition(180, (float)height + 65);
+        text.setPosition(160, (float)height + 65);
         window.draw(text);
         text.setStyle(sf::Text::Regular);
 
@@ -156,15 +156,13 @@ int main() {
             auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
             if (!result.first.empty()) {
-                numVisitedCells = 0;
+                numVisitedCells = result.second.size();
                 for (const auto& cell : result.second) {
                     map.setCellState(cell.x, cell.y, CellState::Visited);
-                    numVisitedCells++;
                 }
-                pathLength = 0;
+                pathLength = result.first.size();
                 for (const auto& cell : result.first) {
                     map.setCellState(cell.x, cell.y, CellState::Path);
-                    pathLength++;
                 }
             }
             else{
@@ -242,7 +240,7 @@ int main() {
                 map.reset();
                 numObstacles = dis(gen);
                 map.generateObstacles(numObstacles);
-                std::cout << "Mappa resettata con " << numObstacles << " ostacoli.\n";
+                //std::cout << "Mappa resettata con " << numObstacles << " ostacoli.\n";
                 pathLength = 0;
                 rWasPressed = true;
                 stateHasChanged = true;
