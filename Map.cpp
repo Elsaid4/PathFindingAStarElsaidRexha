@@ -161,3 +161,26 @@ void Map::setGoal(const sf::Vector2i& pos) {
         std::cerr << "Cannot set goal at (" << pos.x << ", " << pos.y << ")\n";
     }
 }
+
+void Map::generateObstaclesPerlin(float threshold, float scale, int seed) {
+    siv::PerlinNoise noise(seed);
+
+    for (int i = 0; i < X; i++) {
+        for (int j = 0; j < Y; j++) {
+            if (i == start.x && j == start.y) continue;
+            if (i == goal.x && j == goal.y) continue;
+
+            // Valore del noise tra 0.0 e 1.0
+            double n = noise.noise2D_01((double)i * scale, (double)j * scale);
+            if (n > threshold) {
+                grid[i][j] = CellState::Obstacle;
+            } else {
+                grid[i][j] = CellState::Walkable;
+            }
+        }
+    }
+
+    // Imposta di nuovo start e goal nel caso siano stati sovrascritti
+    grid[start.y][start.x] = CellState::Start;
+    grid[goal.y][goal.x] = CellState::Goal;
+}

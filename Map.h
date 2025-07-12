@@ -6,6 +6,7 @@
 #include <vector>
 #include <iostream>
 #include "CellState.h"
+#include "PerlinNoise.hpp"
 
 #ifndef PATHFINDINGASTARELSAIDREXHA_MAP_H
 #define PATHFINDINGASTARELSAIDREXHA_MAP_H
@@ -20,6 +21,7 @@ public:
     void reset();
     void resetForRecalculation();
     void generateObstacles(int numObstacles);
+    void generateObstaclesPerlin(float threshold, float scale, int seed);
     int getWidth() const;
     int getHeight() const;
     float getCellSize() const;

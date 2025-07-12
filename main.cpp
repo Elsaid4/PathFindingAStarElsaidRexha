@@ -32,8 +32,8 @@ int main() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(10, mapWidth * mapHeight / 1.5);
     numObstacles = dis(gen);
-    map.generateObstacles(numObstacles);
-
+    //map.generateObstacles(numObstacles);
+    map.generateObstaclesPerlin(0.55f, 0.2f, gen());
 
     /*
     std::cout << "Mappa iniziale\n";
@@ -239,7 +239,8 @@ int main() {
             if (!rWasPressed) {
                 map.reset();
                 numObstacles = dis(gen);
-                map.generateObstacles(numObstacles);
+                map.generateObstaclesPerlin(0.55f, 0.2f, gen());
+                //map.generateObstacles(numObstacles);
                 //std::cout << "Mappa resettata con " << numObstacles << " ostacoli.\n";
                 pathLength = 0;
                 rWasPressed = true;
