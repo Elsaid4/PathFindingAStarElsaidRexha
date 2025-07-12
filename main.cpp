@@ -40,6 +40,8 @@ int main() {
     PrintMapConsole(map);
     */
 
+    bool editMode = true;
+
     int pathLength = 0;
     int numVisitedCells = 0;
 
@@ -49,6 +51,7 @@ int main() {
     bool gWasPressed = false;
     bool rWasPressed = false;
     bool bWasPressed = false;
+    bool eWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -102,12 +105,93 @@ int main() {
             if (event.type == sf::Event::Closed)
                 window.close();
         }
+        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
+        mousePos.x /= (int)map.getCellSize();
+        mousePos.y /= (int)map.getCellSize();
 
-        window.clear(sf::Color::White);
+        if(editMode){
+            window.clear(sf::Color::White);
+
+            // Gestione posizionamento delle celle
+            // Si ottiene la posizione del mouse e si verifica se è all'interno della mappa
+            // Se il tasto destro è premuto si piazza una cella walkable, altrimenti si piazza un ostacolo
+            if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
+                    if(map.canPlaceWalkable(mousePos.x, mousePos.y)){
+                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") walkable\n";
+                        map.setCellState(mousePos.x, mousePos.y, CellState::Walkable);
+                        stateHasChanged = true;
+                        numObstacles--;
+                    }
+                }
+                else if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                    // Si posiziona start/goal con il tasto sinistro. Si verifica se si è in modalità, altrimenti si piazza un ostacolo
+                    if(startSetMode){
+                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") start\n";
+                        if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
+                            numObstacles--;
+                        }
+                        map.setCellState(mousePos.x, mousePos.y, CellState::Start);
+                        map.setStart(mousePos);
+                        stateHasChanged = true;
+                    }
+                    else if(goalSetMode){
+                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") goal\n";
+                        if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
+                            numObstacles--;
+                        }
+                        map.setCellState(mousePos.x, mousePos.y, CellState::Goal);
+                        map.setGoal(mousePos);
+                        stateHasChanged = true;
+                    }
+                    else if(map.canPlaceObstacle(mousePos.x, mousePos.y)){
+                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") ostacolo\n";
+                        map.setCellState(mousePos.x, mousePos.y, CellState::Obstacle);
+                        stateHasChanged = true;
+                        numObstacles++;
+                    }
+                }
+
+
+                // Gestione della modalità di piazzamento del punto di partenza
+                if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
+                   (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                   && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
+                   && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y) {
+                    if (!sWasPressed) {
+                        startSetMode = !startSetMode;
+                        goalSetMode = false;
+                        sWasPressed = true;
+                    }
+                } else {
+                    sWasPressed = false;
+                }
+
+                // Gestione della modalità di piazzamento del punto di arrivo
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
+                    (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                    && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
+                    && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y) {
+                    if (!gWasPressed) {
+                        goalSetMode = !goalSetMode;
+                        startSetMode = false;
+                        gWasPressed = true;
+                    }
+                } else {
+                    gWasPressed = false;
+                }
+            }
+
+        } else{
+            window.clear(sf::Color(150, 150, 150));
+
+
+        }
+
 
 
         // Gestione del testo
-        text.setString("Press 'Left Click' to set an obstacle\nPress 'Right Click' to set a walkable cell");
+        text.setString(editMode ? "Press 'Left Click' to set an obstacle\nPress 'Right Click' to set a walkable cell" : "Press 'Left Click' to set a goal point");
         text.setPosition(10, (float)height);
         window.draw(text);
 
@@ -205,35 +289,6 @@ int main() {
             bWasPressed = false;
         }
 
-        // Gestione della modalità di piazzamento del punto di partenza
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-           (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-           && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
-           && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y) {
-            if (!sWasPressed) {
-                startSetMode = !startSetMode;
-                goalSetMode = false;
-                sWasPressed = true;
-            }
-        } else {
-            sWasPressed = false;
-        }
-
-        // Gestione della modalità di piazzamento del punto di arrivo
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
-            (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
-            && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y) {
-            if (!gWasPressed) {
-                goalSetMode = !goalSetMode;
-                startSetMode = false;
-                gWasPressed = true;
-            }
-        } else {
-            gWasPressed = false;
-        }
-
-
         // Gestione del reset della mappa
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
             if (!rWasPressed) {
@@ -250,52 +305,16 @@ int main() {
             rWasPressed = false;
         }
 
-
-        // Gestione posizionamento delle celle
-        // Si ottiene la posizione del mouse e si verifica se è all'interno della mappa
-        // Se il tasto destro è premuto si piazza una cella walkable, altrimenti si piazza un ostacolo
-        sf::Vector2i mousePos = sf::Mouse::getPosition(window);
-        mousePos.x /= (int)map.getCellSize();
-        mousePos.y /= (int)map.getCellSize();
-        if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
-            if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
-                if(map.canPlaceWalkable(mousePos.x, mousePos.y)){
-                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") walkable\n";
-                    map.setCellState(mousePos.x, mousePos.y, CellState::Walkable);
-                    stateHasChanged = true;
-                    numObstacles--;
-                }
+        // Gestione passaggio a edit mode
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::E)) {
+            if (!eWasPressed) {
+                editMode = !editMode;
+                eWasPressed = true;
+                hoverShapeCell.setPosition(-100, -100);
             }
-            else if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
-                // Si posiziona start/goal con il tasto sinistro. Si verifica se si è in modalità, altrimenti si piazza un ostacolo
-                if(startSetMode){
-                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") start\n";
-                    if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
-                        numObstacles--;
-                    }
-                    map.setCellState(mousePos.x, mousePos.y, CellState::Start);
-                    map.setStart(mousePos);
-                    stateHasChanged = true;
-                }
-                else if(goalSetMode){
-                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") goal\n";
-                    if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
-                        numObstacles--;
-                    }
-                    map.setCellState(mousePos.x, mousePos.y, CellState::Goal);
-                    map.setGoal(mousePos);
-                    stateHasChanged = true;
-                }
-                else if(map.canPlaceObstacle(mousePos.x, mousePos.y)){
-                    //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") ostacolo\n";
-                    map.setCellState(mousePos.x, mousePos.y, CellState::Obstacle);
-                    stateHasChanged = true;
-                    numObstacles++;
-                }
-            }
+        } else {
+            eWasPressed = false;
         }
-
-        map.draw(window, font, setBorder);
 
         // Gestione dell'hover sulle celle
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
@@ -305,15 +324,17 @@ int main() {
             hoverShapeCell.setPosition(-100, -100);
         }
 
+        map.draw(window, font, setBorder);
+
 
         // TODO: Migliore gestione dei pulsanti con classe dedicata
         // Gestione dell'hover sui bottoni
-        if(sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
+        if(editMode && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
            && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y)
         {
             hoverShapeButton.setPosition(sf::Vector2f((float) goalModeButtonPosition.x, (float) goalModeButtonPosition.y));
         }
-        else if(sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
+        else if(editMode && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
                 && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y)
         {
             hoverShapeButton.setPosition(sf::Vector2f((float) startModeButtonPosition.x, (float) startModeButtonPosition.y));

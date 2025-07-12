@@ -12,7 +12,9 @@ add_subdirectory(test)
 add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h
         Node.h
         AStar.cpp
-        AStar.h)
+        AStar.h
+        GameCharacter.cpp
+        GameCharacter.h)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
