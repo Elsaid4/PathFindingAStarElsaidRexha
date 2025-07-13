@@ -6,15 +6,20 @@
 #define PATHFINDINGASTARELSAIDREXHA_GAMECHARACTER_H
 
 
+#include <SFML/System/Vector2.hpp>
+#include "Map.h"
+
 class GameCharacter {
 public:
-    GameCharacter(int posX, int posY);
+    GameCharacter(sf::Vector2i startPos, float size);
 
-    void move(int deltaX, int deltaY);
+    sf::Vector2i update(Map& map, std::vector<sf::Vector2i> path);
+    void draw(sf::RenderWindow& window, float cellSize);
+
 
 private:
-    float posX;
-    float posY;
+    sf::Vector2i position;
+    float size;
 };
 
 

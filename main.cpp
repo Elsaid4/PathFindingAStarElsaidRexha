@@ -4,6 +4,7 @@
 
 #include "Map.h"
 #include "AStar.h"
+#include "GameCharacter.h"
 
 void PrintMapConsole(const Map &map);
 
@@ -21,8 +22,8 @@ int main() {
         std::cerr << "Error loading font\n";
     }
 
-    int mapWidth = 40;
-    int mapHeight = 40;
+    int mapWidth = 50;
+    int mapHeight = 50;
     Map map(mapWidth, mapHeight);
 
     map.setCellSize(width / mapWidth);
@@ -33,12 +34,18 @@ int main() {
     std::uniform_int_distribution<> dis(10, mapWidth * mapHeight / 1.5);
     numObstacles = dis(gen);
     //map.generateObstacles(numObstacles);
-    map.generateObstaclesPerlin(0.55f, 0.2f, gen());
+    float threshold = 0.55f;
+    float scale = 0.2f;
+    map.generateObstaclesPerlin(threshold, scale, gen());
 
     /*
     std::cout << "Mappa iniziale\n";
     PrintMapConsole(map);
     */
+
+    GameCharacter player(map.getStart(), map.getCellSize() / 2.0f);
+    sf::Clock clock;
+    float moveDelay = 0.1f;
 
     bool editMode = true;
 
@@ -52,6 +59,7 @@ int main() {
     bool rWasPressed = false;
     bool bWasPressed = false;
     bool eWasPressed = false;
+    bool pWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -97,7 +105,7 @@ int main() {
     hoverShapeButton.setOutlineColor(sf::Color::Black);
     hoverShapeButton.setOutlineThickness(2);
 
-    char s = ' ';
+    std::vector<sf::Vector2i> path;
 
     while (window.isOpen()) {
         sf::Event event;
@@ -185,13 +193,31 @@ int main() {
         } else{
             window.clear(sf::Color(150, 150, 150));
 
+            // Gestione movimento del personaggio ogni moveDelay secondi
+            if (clock.getElapsedTime().asSeconds() >= moveDelay) {
+                auto playerPos = player.update(map, path);
+                if(playerPos != map.getStart()){
+                    map.setStart(player.update(map, path));
+                    stateHasChanged = true;
+                }
+                clock.restart();
+            }
 
+            // Gestione posizionamento del goal
+            if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
+                if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
+                    if(map.canPlaceObstacle(mousePos.x, mousePos.y)){
+                        map.setCellState(mousePos.x, mousePos.y, CellState::Goal);
+                        map.setGoal(mousePos);
+                        stateHasChanged = true;
+                    }
+                }
+            }
         }
 
 
-
         // Gestione del testo
-        text.setString(editMode ? "Press 'Left Click' to set an obstacle\nPress 'Right Click' to set a walkable cell" : "Press 'Left Click' to set a goal point");
+        text.setString(editMode ? "Press 'Left Click' to set an obstacle\nPress 'Right Click' to set a walkable cell\nPress 'E' to exit edit mode" : "Press 'Left Click' to set a goal point\nPress 'E' to enter edit mode");
         text.setPosition(10, (float)height);
         window.draw(text);
 
@@ -199,7 +225,7 @@ int main() {
         text.setPosition(560, (float)height);
         window.draw(text);
 
-        text.setString("Press 'R' to reset the map\nwith random obstacles");
+        text.setString("Press 'R' to reset the map\nwith random obstacles\nPress 'P' to use Perlin\nNumber of obstacles: " + std::to_string(numObstacles));
         text.setPosition(330, (float)height);
         window.draw(text);
 
@@ -212,9 +238,7 @@ int main() {
         window.draw(text);
         text.setStyle(sf::Text::Regular);
 
-        text.setString("Number of obstacles: " + std::to_string(numObstacles));
-        text.setPosition(330, (float)height + 45);
-        window.draw(text);
+
 
         // Gestione dei pulsanti
         borderButton.setFillColor(setBorder ? sf::Color::Green : sf::Color::Red);
@@ -229,7 +253,7 @@ int main() {
         debugModeButton.setFillColor(map.isDebug() ? sf::Color::Green : sf::Color::Red);
         window.draw(debugModeButton);
 
-        if(stateHasChanged){
+        if(stateHasChanged && map.getGoal() != map.getStart()){
             map.resetForRecalculation();
             /*
             std::cout << "Prima\n";
@@ -239,13 +263,16 @@ int main() {
 
             auto result = AStar::findPath(map, map.getStart(), map.getGoal());
 
-            if (!result.first.empty()) {
+            if(!result.second.empty()){
                 numVisitedCells = result.second.size();
                 for (const auto& cell : result.second) {
                     map.setCellState(cell.x, cell.y, CellState::Visited);
                 }
-                pathLength = result.first.size();
-                for (const auto& cell : result.first) {
+            }
+            path = result.first;
+            if (!path.empty()) {
+                pathLength = path.size();
+                for (const auto& cell : path) {
                     map.setCellState(cell.x, cell.y, CellState::Path);
                 }
             }
@@ -294,15 +321,34 @@ int main() {
             if (!rWasPressed) {
                 map.reset();
                 numObstacles = dis(gen);
-                map.generateObstaclesPerlin(0.55f, 0.2f, gen());
-                //map.generateObstacles(numObstacles);
-                //std::cout << "Mappa resettata con " << numObstacles << " ostacoli.\n";
+                map.generateObstacles(numObstacles);
                 pathLength = 0;
                 rWasPressed = true;
                 stateHasChanged = true;
             }
         } else {
             rWasPressed = false;
+        }
+
+        // Gestione del Perlin noise
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::P)) {
+            if (!pWasPressed) {
+                map.reset();
+                map.generateObstaclesPerlin(threshold, scale, gen());
+                numObstacles = 0;
+                for (int i = 0; i < map.getWidth(); i++) {
+                    for (int j = 0; j < map.getHeight(); j++) {
+                        if (map.getCellState(i, j) == CellState::Obstacle) {
+                            numObstacles++;
+                        }
+                    }
+                }
+                pathLength = 0;
+                pWasPressed = true;
+                stateHasChanged = true;
+            }
+        } else {
+            pWasPressed = false;
         }
 
         // Gestione passaggio a edit mode
@@ -355,6 +401,8 @@ int main() {
 
         window.draw(hoverShapeCell);
         window.draw(hoverShapeButton);
+
+        player.draw(window, map.getCellSize());
 
         window.display();
     }
