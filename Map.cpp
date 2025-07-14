@@ -5,13 +5,21 @@
 #include <random>
 #include "Map.h"
 
-Map::Map(int x, int y) : X(x), Y(y) {
+Map::Map(int x, int y, float size) : X(x), Y(y), cellSize(size) {
     grid.resize(X, std::vector<CellState>(Y, CellState::Walkable));
     grid[0][0] = CellState::Start;
     grid[Y - 1][X - 1] = CellState::Goal;
     start = sf::Vector2i(0, 0);
     goal = sf::Vector2i(X - 1, Y - 1);
-    CellSize = 0;
+
+    if (!grassTexture.loadFromFile("../Assets/Grass.png")) {
+        std::cerr << "Failed to load grass.png";
+    }
+    if (!waterTexture.loadFromFile("../Assets/Water.png")) {
+        std::cerr << "Failed to load water.png";
+    }
+
+    cellSprite.setScale(cellSize / 32.f, cellSize / 32.f);
 }
 
 bool Map::isWalkable(int x, int y) const {
@@ -37,20 +45,43 @@ bool Map::canPlaceWalkable(int x, int y) const {
     return grid[x][y] == CellState::Obstacle;
 }
 
-void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder) {
+void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder, bool drawTexture) {
     for (int i = 0; i < X; i++) {
         for (int j = 0; j < Y; j++) {
-            sf::RectangleShape cell(sf::Vector2f(CellSize,CellSize));
-            if (drawBorder) {
-                cell.setOutlineColor(sf::Color::Black);
-                cell.setOutlineThickness(1);
+            if(!drawTexture) {
+                sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
+                if (drawBorder) {
+                    cell.setOutlineColor(sf::Color::Black);
+                    cell.setOutlineThickness(1);
+                }
+                cell.setPosition(i * cellSize, j * cellSize);
+                cell.setFillColor(GetCellColor(grid[i][j]));
+                window.draw(cell);
             }
+            else{
+                sf::Vector2f position(i * cellSize, j * cellSize);
+                cellSprite.setPosition(position);
 
-            cell.setPosition(i * CellSize, j * CellSize);
-
-            cell.setFillColor(GetCellColor(grid[i][j]));
-
-            window.draw(cell);
+                switch (grid[i][j]) {
+                    case CellState::Walkable:
+                        cellSprite.setTexture(grassTexture);
+                        window.draw(cellSprite);
+                        break;
+                    case CellState::Obstacle:
+                        cellSprite.setTexture(waterTexture);
+                        window.draw(cellSprite);
+                        break;
+                    default:
+                        sf::RectangleShape cell(sf::Vector2f(cellSize, cellSize));
+                        if (drawBorder) {
+                            cell.setOutlineColor(sf::Color::Black);
+                            cell.setOutlineThickness(1);
+                        }
+                        cell.setPosition(position);
+                        cell.setFillColor(GetCellColor(grid[i][j]));
+                        window.draw(cell);
+                }
+            }
 
             if(isDebugMode) {
                 sf::Text text;
@@ -58,7 +89,7 @@ void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder) {
                 text.setString("("+ std::to_string(i) + "-" + std::to_string(j) + ")");
                 text.setCharacterSize(17);
                 text.setFillColor(sf::Color::Black);
-                text.setPosition(i * CellSize + CellSize / 4, j * CellSize);
+                text.setPosition(i * cellSize + cellSize / 4, j * cellSize);
                 window.draw(text);
 
                 sf::Text state;
@@ -66,10 +97,9 @@ void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder) {
                 state.setString(std::to_string(static_cast<int>(grid[i][j])));
                 state.setCharacterSize(20);
                 state.setFillColor(sf::Color::Black);
-                state.setPosition(i * CellSize + CellSize / 2, j * CellSize + CellSize / 2);
+                state.setPosition(i * cellSize + cellSize / 2, j * cellSize + cellSize / 2);
                 window.draw(state);
             }
-
         }
     }
 }
@@ -137,11 +167,11 @@ int Map::getHeight() const{
 }
 
 float Map::getCellSize() const {
-    return CellSize;
+    return cellSize;
 }
 
 void Map::setCellSize(float size) {
-    CellSize = size;
+    cellSize = size;
 }
 
 sf::Vector2i Map::getStart() const {

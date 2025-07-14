@@ -9,7 +9,7 @@ class MapTest : public ::testing::Test {
 protected:
     Map map;
 
-    MapTest() : map(10, 10) {}
+    MapTest() : map(10, 10, 1) {}
 
     void SetUp() override {
         map.setCellState(0, 0, CellState::Start);

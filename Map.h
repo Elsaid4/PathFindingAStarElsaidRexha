@@ -14,10 +14,10 @@
 
 class Map {
 public:
-    Map(int width, int height);
+    Map(int width, int height, float cellSize);
     bool isWalkable(int x, int y) const;
     void setCellState(int x, int y, CellState state);
-    void draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder = true);
+    void draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder = false, bool drawTexture = true);
     void reset();
     void resetForRecalculation();
     void generateRandomObstacles(int numObstacles);
@@ -40,10 +40,13 @@ public:
 private:
     std::vector<std::vector<CellState>> grid;
     int X, Y;
-    float CellSize;
+    float cellSize;
     sf::Vector2i start;
     sf::Vector2i goal;
     bool isDebugMode = false;
+    sf::Texture grassTexture;
+    sf::Texture waterTexture;
+    sf::Sprite cellSprite;
 };
 
 

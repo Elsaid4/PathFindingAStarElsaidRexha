@@ -22,11 +22,10 @@ int main() {
         std::cerr << "Error loading font\n";
     }
 
-    int mapWidth = 50;
-    int mapHeight = 50;
-    Map map(mapWidth, mapHeight);
+    int mapWidth = 40;
+    int mapHeight = 40;
+    Map map(mapWidth, mapHeight, width / mapWidth);
 
-    map.setCellSize(width / mapWidth);
 
     int numObstacles;
     std::random_device rd;
@@ -60,6 +59,7 @@ int main() {
     bool bWasPressed = false;
     bool eWasPressed = false;
     bool pWasPressed = false;
+    bool tWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -67,7 +67,8 @@ int main() {
     bool startSetMode = false;
     bool goalSetMode = false;
 
-    bool setBorder = true;
+    bool setBorder = false;
+    bool drawTexture = true;
 
     sf::Text text;
     text.setFont(font);
@@ -89,9 +90,9 @@ int main() {
     sf::Vector2i borderButtonPosition(775, height + 50);
     borderButton.setPosition((float)borderButtonPosition.x, (float)borderButtonPosition.y);
 
-    sf::RectangleShape debugModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i debugModeButtonPosition(775, height + 73);
-    debugModeButton.setPosition((float)debugModeButtonPosition.x, (float)debugModeButtonPosition.y);
+    sf::RectangleShape showTextureButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2i showTextureButtonPosition(775, height + 73);
+    showTextureButton.setPosition((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y);
 
 
     // Hover shapes per le celle e i pulsanti
@@ -221,7 +222,7 @@ int main() {
         text.setPosition(10, (float)height);
         window.draw(text);
 
-        text.setString("Press 'S' to set start point\nPress 'G' to set goal point\nPress 'B' to toggle border\nPress 'D' to toggle debug");
+        text.setString("Press 'S' to set start point\nPress 'G' to set goal point\nPress 'B' to toggle border\nPress 'T' to change texture");
         text.setPosition(560, (float)height);
         window.draw(text);
 
@@ -250,8 +251,8 @@ int main() {
         goalModeButton.setFillColor(goalSetMode ? sf::Color::Green : sf::Color::Red);
         window.draw(goalModeButton);
 
-        debugModeButton.setFillColor(map.isDebug() ? sf::Color::Green : sf::Color::Red);
-        window.draw(debugModeButton);
+        showTextureButton.setFillColor(drawTexture ? sf::Color::Green : sf::Color::Red);
+        window.draw(showTextureButton);
 
         if(stateHasChanged && map.getGoal() != map.getStart()){
             map.resetForRecalculation();
@@ -290,10 +291,19 @@ int main() {
         }
 
         // Gestione del pulsante per il debug mode
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) ||
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            && sf::Mouse::getPosition(window).x >= debugModeButtonPosition.x && sf::Mouse::getPosition(window).x <= debugModeButtonPosition.x + buttonSize.x
-            && sf::Mouse::getPosition(window).y >= debugModeButtonPosition.y && sf::Mouse::getPosition(window).y <= debugModeButtonPosition.y + buttonSize.y) {
+            && sf::Mouse::getPosition(window).x >= showTextureButtonPosition.x && sf::Mouse::getPosition(window).x <= showTextureButtonPosition.x + buttonSize.x
+            && sf::Mouse::getPosition(window).y >= showTextureButtonPosition.y && sf::Mouse::getPosition(window).y <= showTextureButtonPosition.y + buttonSize.y) {
+            if (!tWasPressed) {
+                drawTexture = !drawTexture;
+                tWasPressed = true;
+            }
+        } else {
+            tWasPressed = false;
+        }
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
             if (!dWasPressed) {
                 map.toggleDebugMode();
                 dWasPressed = true;
@@ -301,6 +311,7 @@ int main() {
         } else {
             dWasPressed = false;
         }
+
 
 
         // Gestione bottone per il bordo
@@ -370,7 +381,7 @@ int main() {
             hoverShapeCell.setPosition(-100, -100);
         }
 
-        map.draw(window, font, setBorder);
+        map.draw(window, font, setBorder, drawTexture);
 
 
         // TODO: Migliore gestione dei pulsanti con classe dedicata
@@ -390,10 +401,10 @@ int main() {
         {
             hoverShapeButton.setPosition(sf::Vector2f((float) borderButtonPosition.x, (float) borderButtonPosition.y));
         }
-        else if(sf::Mouse::getPosition(window).x >= debugModeButtonPosition.x && sf::Mouse::getPosition(window).x <= debugModeButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= debugModeButtonPosition.y && sf::Mouse::getPosition(window).y <= debugModeButtonPosition.y + buttonSize.y)
+        else if(sf::Mouse::getPosition(window).x >= showTextureButtonPosition.x && sf::Mouse::getPosition(window).x <= showTextureButtonPosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= showTextureButtonPosition.y && sf::Mouse::getPosition(window).y <= showTextureButtonPosition.y + buttonSize.y)
         {
-            hoverShapeButton.setPosition(sf::Vector2f((float) debugModeButtonPosition.x, (float) debugModeButtonPosition.y));
+            hoverShapeButton.setPosition(sf::Vector2f((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y));
         }
         else{
             hoverShapeButton.setPosition(-100, -100);
