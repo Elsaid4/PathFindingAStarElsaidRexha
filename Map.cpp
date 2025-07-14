@@ -90,7 +90,7 @@ void Map::resetForRecalculation() {
                 grid[i][j] = CellState::Walkable;
 }
 
-void Map::generateObstacles(int numObstacles) {
+void Map::generateRandomObstacles(int numObstacles) {
     std::random_device rd;
     std::mt19937 g(rd());
 
@@ -107,6 +107,25 @@ void Map::generateObstacles(int numObstacles) {
 
     for (int i = 0; i < numObstacles && i < coords.size(); i++)
         setCellState(coords[i].first, coords[i].second, CellState::Obstacle);
+}
+
+void Map::generateObstaclesPerlin(float threshold, float scale, int seed) {
+    siv::PerlinNoise noise(seed);
+
+    for (int i = 0; i < X; i++) {
+        for (int j = 0; j < Y; j++) {
+            if (i == start.x && j == start.y) continue;
+            if (i == goal.x && j == goal.y) continue;
+
+            // Valore del noise tra 0.0 e 1.0
+            double n = noise.noise2D_01((double)i * scale, (double)j * scale);
+            if (n > threshold) {
+                grid[i][j] = CellState::Obstacle;
+            } else {
+                grid[i][j] = CellState::Walkable;
+            }
+        }
+    }
 }
 
 int Map::getWidth() const{
@@ -162,25 +181,3 @@ void Map::setGoal(const sf::Vector2i& pos) {
     }
 }
 
-void Map::generateObstaclesPerlin(float threshold, float scale, int seed) {
-    siv::PerlinNoise noise(seed);
-
-    for (int i = 0; i < X; i++) {
-        for (int j = 0; j < Y; j++) {
-            if (i == start.x && j == start.y) continue;
-            if (i == goal.x && j == goal.y) continue;
-
-            // Valore del noise tra 0.0 e 1.0
-            double n = noise.noise2D_01((double)i * scale, (double)j * scale);
-            if (n > threshold) {
-                grid[i][j] = CellState::Obstacle;
-            } else {
-                grid[i][j] = CellState::Walkable;
-            }
-        }
-    }
-
-    // Imposta di nuovo start e goal nel caso siano stati sovrascritti
-    grid[start.y][start.x] = CellState::Start;
-    grid[goal.y][goal.x] = CellState::Goal;
-}

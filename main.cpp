@@ -33,7 +33,7 @@ int main() {
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(10, mapWidth * mapHeight / 1.5);
     numObstacles = dis(gen);
-    //map.generateObstacles(numObstacles);
+    //map.generateRandomObstacles(numObstacles);
     float threshold = 0.55f;
     float scale = 0.2f;
     map.generateObstaclesPerlin(threshold, scale, gen());
@@ -321,7 +321,7 @@ int main() {
             if (!rWasPressed) {
                 map.reset();
                 numObstacles = dis(gen);
-                map.generateObstacles(numObstacles);
+                map.generateRandomObstacles(numObstacles);
                 pathLength = 0;
                 rWasPressed = true;
                 stateHasChanged = true;

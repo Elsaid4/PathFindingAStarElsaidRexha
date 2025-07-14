@@ -96,7 +96,7 @@ TEST_F(MapTest, ResetForRecalculation) {
 }
 
 TEST_F(MapTest, GenerateObstacles) {
-    map.generateObstacles(5);
+    map.generateRandomObstacles(5);
     int obstacleCount = 0;
     for (int x = 0; x < map.getWidth(); ++x) {
         for (int y = 0; y < map.getHeight(); ++y) {

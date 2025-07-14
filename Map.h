@@ -20,7 +20,7 @@ public:
     void draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder = true);
     void reset();
     void resetForRecalculation();
-    void generateObstacles(int numObstacles);
+    void generateRandomObstacles(int numObstacles);
     void generateObstaclesPerlin(float threshold, float scale, int seed);
     int getWidth() const;
     int getHeight() const;
