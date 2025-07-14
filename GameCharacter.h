@@ -14,12 +14,14 @@ public:
     GameCharacter(sf::Vector2i startPos, float size);
 
     sf::Vector2i update(Map& map, std::vector<sf::Vector2i> path);
-    void draw(sf::RenderWindow& window, float cellSize);
+    void draw(sf::RenderWindow& window);
 
 
 private:
     sf::Vector2i position;
     float size;
+    sf::Texture texture;
+    sf::Sprite sprite;
 };
 
 

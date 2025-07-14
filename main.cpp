@@ -22,8 +22,8 @@ int main() {
         std::cerr << "Error loading font\n";
     }
 
-    int mapWidth = 40;
-    int mapHeight = 40;
+    int mapWidth = 50;
+    int mapHeight = 50;
     Map map(mapWidth, mapHeight, width / mapWidth);
 
 
@@ -42,7 +42,7 @@ int main() {
     PrintMapConsole(map);
     */
 
-    GameCharacter player(map.getStart(), map.getCellSize() / 2.0f);
+    GameCharacter player(map.getStart(), map.getCellSize());
     sf::Clock clock;
     float moveDelay = 0.1f;
 
@@ -413,7 +413,7 @@ int main() {
         window.draw(hoverShapeCell);
         window.draw(hoverShapeButton);
 
-        player.draw(window, map.getCellSize());
+        player.draw(window);
 
         window.display();
     }
