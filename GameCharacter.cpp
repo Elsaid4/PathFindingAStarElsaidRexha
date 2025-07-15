@@ -12,12 +12,8 @@ GameCharacter::GameCharacter(sf::Vector2i startPos, float size) : position(start
     sprite.setScale(size / 16.f, size / 16.f);
 }
 
-sf::Vector2i GameCharacter::update(Map& map, std::vector<sf::Vector2i> path) {
-    if (!path.empty()) {
-        position = path.front();
-        path.erase(path.begin());
-    }
-    return position;
+void GameCharacter::update(sf::Vector2i nextPosition) {
+    position = nextPosition;
 }
 
 void GameCharacter::draw(sf::RenderWindow& window) {
@@ -29,4 +25,8 @@ void GameCharacter::draw(sf::RenderWindow& window) {
     characterShape.setPosition((float)position.x * cellSize, (float)position.y * cellSize);
     window.draw(characterShape);
     */
+}
+
+sf::Vector2i GameCharacter::getPosition() const {
+    return position;
 }

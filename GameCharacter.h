@@ -13,8 +13,9 @@ class GameCharacter {
 public:
     GameCharacter(sf::Vector2i startPos, float size);
 
-    sf::Vector2i update(Map& map, std::vector<sf::Vector2i> path);
+    void update(sf::Vector2i nextPosition);
     void draw(sf::RenderWindow& window);
+    sf::Vector2i getPosition() const;
 
 
 private:
