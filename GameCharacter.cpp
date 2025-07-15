@@ -5,11 +5,11 @@
 #include "GameCharacter.h"
 
 GameCharacter::GameCharacter(sf::Vector2i startPos, float size) : position(startPos), size(size) {
-    if (!texture.loadFromFile("../Assets/Character.png")) {
+    if (!texture.loadFromFile("../Assets/Isaac.png")) {
         std::cerr << "Error loading character texture\n";
     }
     sprite.setTexture(texture);
-    sprite.setScale(size / 16.f, size / 16.f);
+    sprite.setScale(size / 32.f, size / 32.f);
 }
 
 void GameCharacter::update(sf::Vector2i nextPosition) {
@@ -17,7 +17,7 @@ void GameCharacter::update(sf::Vector2i nextPosition) {
 }
 
 void GameCharacter::draw(sf::RenderWindow& window) {
-    sprite.setPosition((float)position.x * size - size / 2, (float)position.y * size - size /2);
+    sprite.setPosition((float)position.x * size, (float)position.y * size);
     window.draw(sprite);
     /*
     sf::CircleShape characterShape(size);

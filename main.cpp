@@ -196,10 +196,12 @@ int main() {
 
             // Gestione movimento del personaggio ogni moveDelay secondi
             if (clock.getElapsedTime().asSeconds() >= moveDelay) {
-                player.update(path.front());
-                if(player.getPosition() != map.getStart()){
-                    map.setStart(player.getPosition());
-                    stateHasChanged = true;
+                if (!path.empty()) {
+                    player.update(path.front());
+                    if(player.getPosition() != map.getStart()){
+                        map.setStart(player.getPosition());
+                        stateHasChanged = true;
+                    }
                 }
                 clock.restart();
             }
