@@ -67,7 +67,7 @@ int main() {
     bool startSetMode = false;
     bool goalSetMode = false;
 
-    bool setBorder = false;
+    bool drawBorder = false;
     bool drawTexture = true;
 
     sf::Text text;
@@ -244,7 +244,7 @@ int main() {
 
 
         // Gestione dei pulsanti
-        borderButton.setFillColor(setBorder ? sf::Color::Green : sf::Color::Red);
+        borderButton.setFillColor(drawBorder ? sf::Color::Green : sf::Color::Red);
         window.draw(borderButton);
 
         startModeButton.setFillColor(startSetMode ? sf::Color::Green : sf::Color::Red);
@@ -292,7 +292,7 @@ int main() {
             */
         }
 
-        // Gestione del pulsante per il debug mode
+        // Gestione del pulsante per il toggle delle texture
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left))
             && sf::Mouse::getPosition(window).x >= showTextureButtonPosition.x && sf::Mouse::getPosition(window).x <= showTextureButtonPosition.x + buttonSize.x
@@ -305,6 +305,7 @@ int main() {
             tWasPressed = false;
         }
 
+        // Gestione per il debug mode
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
             if (!dWasPressed) {
                 map.toggleDebugMode();
@@ -322,7 +323,7 @@ int main() {
             && sf::Mouse::getPosition(window).x >= borderButtonPosition.x && sf::Mouse::getPosition(window).x <= borderButtonPosition.x + buttonSize.x
             && sf::Mouse::getPosition(window).y >= borderButtonPosition.y && sf::Mouse::getPosition(window).y <= borderButtonPosition.y + buttonSize.y) {
             if (!bWasPressed) {
-                setBorder = !setBorder;
+                drawBorder = !drawBorder;
                 bWasPressed = true;
             }
         } else {
@@ -383,7 +384,7 @@ int main() {
             hoverShapeCell.setPosition(-100, -100);
         }
 
-        map.draw(window, font, setBorder, drawTexture);
+        map.draw(window, font, drawBorder, drawTexture);
 
 
         // TODO: Migliore gestione dei pulsanti con classe dedicata
