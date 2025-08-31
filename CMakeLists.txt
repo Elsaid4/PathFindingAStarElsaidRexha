@@ -14,7 +14,9 @@ add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h
         AStar.cpp
         AStar.h
         GameCharacter.cpp
-        GameCharacter.h)
+        GameCharacter.h
+        MazeGenerator.cpp
+        MazeGenerator.h)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

@@ -22,6 +22,15 @@ public:
     void resetForRecalculation();
     void generateRandomObstacles(int numObstacles);
     void generateObstaclesPerlin(float threshold, float scale, int seed);
+    void generateMaze();
+    void initMapAllObstacles(){
+        for (int i = 0; i < X; ++i)
+            for (int j = 0; j < Y; ++j)
+                grid[i][j] = CellState::Obstacle;
+        grid[start.x][start.y] = CellState::Start;
+        grid[goal.x][goal.y] = CellState::Goal;
+    }
+    std::vector<std::vector<CellState>>& getGrid() { return grid; }
     int getWidth() const;
     int getHeight() const;
     float getCellSize() const;

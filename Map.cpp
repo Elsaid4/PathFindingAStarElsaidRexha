@@ -4,6 +4,7 @@
 
 #include <random>
 #include "Map.h"
+#include "MazeGenerator.h"
 
 Map::Map(int x, int y, float size) : X(x), Y(y), cellSize(size) {
     grid.resize(X, std::vector<CellState>(Y, CellState::Walkable));
@@ -156,6 +157,10 @@ void Map::generateObstaclesPerlin(float threshold, float scale, int seed) {
             }
         }
     }
+}
+
+void Map::generateMaze() {
+    MazeGenerator::generateMaze(*this);
 }
 
 int Map::getWidth() const{

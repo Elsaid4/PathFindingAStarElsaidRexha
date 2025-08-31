@@ -35,7 +35,8 @@ int main() {
     //map.generateRandomObstacles(numObstacles);
     float threshold = 0.55f;
     float scale = 0.2f;
-    map.generateObstaclesPerlin(threshold, scale, gen());
+    //map.generateObstaclesPerlin(threshold, scale, gen());
+    map.generateMaze();
 
     /*
     std::cout << "Mappa iniziale\n";
