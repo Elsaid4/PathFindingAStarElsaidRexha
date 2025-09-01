@@ -6,7 +6,7 @@
 #include "Map.h"
 #include "MazeGenerator.h"
 
-Map::Map(int x, int y, float size) : X(x), Y(y), cellSize(size) {
+Map::Map(int x, int y, float size, sf::Font font) : X(x), Y(y), cellSize(size), font(font) {
     grid.resize(X, std::vector<CellState>(Y, CellState::Walkable));
     grid[0][0] = CellState::Start;
     grid[Y - 1][X - 1] = CellState::Goal;
@@ -46,7 +46,7 @@ bool Map::canPlaceWalkable(int x, int y) const {
     return grid[x][y] == CellState::Obstacle;
 }
 
-void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder, bool drawTexture) {
+void Map::draw(sf::RenderWindow& window, bool drawBorder, bool drawTexture) {
     for (int i = 0; i < X; i++) {
         for (int j = 0; j < Y; j++) {
             if(!drawTexture) {
@@ -55,7 +55,7 @@ void Map::draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder, bool d
                     cell.setOutlineColor(sf::Color::Black);
                     cell.setOutlineThickness(1);
                 }
-                cell.setPosition(i * cellSize, j * cellSize);
+                cell.setPosition(i * cellSize,j * cellSize);
                 cell.setFillColor(GetCellColor(grid[i][j]));
                 window.draw(cell);
             }
@@ -157,6 +157,16 @@ void Map::generateObstaclesPerlin(float threshold, float scale, int seed) {
             }
         }
     }
+}
+
+void Map::initMapAllObstacles() {
+    for (int i = 0; i < X; i++) {
+        for (int j = 0; j < Y; j++) {
+            grid[i][j] = CellState::Obstacle;
+        }
+    }
+    grid[start.x][start.y] = CellState::Start;
+    grid[goal.x][goal.y] = CellState::Goal;
 }
 
 void Map::generateMaze() {

@@ -22,9 +22,9 @@ int main() {
         std::cerr << "Error loading font\n";
     }
 
-    int mapWidth = 50;
-    int mapHeight = 50;
-    Map map(mapWidth, mapHeight, width / mapWidth);
+    int mapWidth = 49;
+    int mapHeight = 49;
+    Map map(mapWidth, mapHeight, width / mapWidth, font);
 
 
     int numObstacles;
@@ -61,6 +61,7 @@ int main() {
     bool eWasPressed = false;
     bool pWasPressed = false;
     bool tWasPressed = false;
+    bool mWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -161,35 +162,34 @@ int main() {
                         numObstacles++;
                     }
                 }
+            }
 
-
-                // Gestione della modalità di piazzamento del punto di partenza
-                if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-                   (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                   && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
-                   && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y) {
-                    if (!sWasPressed) {
-                        startSetMode = !startSetMode;
-                        goalSetMode = false;
-                        sWasPressed = true;
-                    }
-                } else {
-                    sWasPressed = false;
+            // Gestione della modalità di piazzamento del punto di partenza
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
+               (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+               && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
+               && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y) {
+                if (!sWasPressed) {
+                    startSetMode = !startSetMode;
+                    goalSetMode = false;
+                    sWasPressed = true;
                 }
+            } else {
+                sWasPressed = false;
+            }
 
-                // Gestione della modalità di piazzamento del punto di arrivo
-                if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
-                    (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                    && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
-                    && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y) {
-                    if (!gWasPressed) {
-                        goalSetMode = !goalSetMode;
-                        startSetMode = false;
-                        gWasPressed = true;
-                    }
-                } else {
-                    gWasPressed = false;
+            // Gestione della modalità di piazzamento del punto di arrivo
+            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
+                (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+                && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y) {
+                if (!gWasPressed) {
+                    goalSetMode = !goalSetMode;
+                    startSetMode = false;
+                    gWasPressed = true;
                 }
+            } else {
+                gWasPressed = false;
             }
 
         } else{
@@ -377,6 +377,18 @@ int main() {
             eWasPressed = false;
         }
 
+        // Gestione pulsante M per generare un nuovo labirinto
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::M)) {
+            if (!mWasPressed) {
+                map.generateMaze();
+                pathLength = 0;
+                mWasPressed = true;
+                stateHasChanged = true;
+            }
+        } else {
+            mWasPressed = false;
+        }
+
         // Gestione dell'hover sulle celle
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
             hoverShapeCell.setPosition((float) mousePos.x * map.getCellSize(), (float) mousePos.y * map.getCellSize());
@@ -385,7 +397,7 @@ int main() {
             hoverShapeCell.setPosition(-100, -100);
         }
 
-        map.draw(window, font, drawBorder, drawTexture);
+        map.draw(window, drawBorder, drawTexture);
 
 
         // TODO: Migliore gestione dei pulsanti con classe dedicata

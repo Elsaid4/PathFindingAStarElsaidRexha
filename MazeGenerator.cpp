@@ -16,7 +16,7 @@ void MazeGenerator::generateMaze(Map& map) {
         return x > 0 && x < width-1 && y > 0 && y < height-1;
     };
 
-    stack.push_back({1, 1});
+    stack.emplace_back(1, 1);
     maze[1][1] = CellState::Walkable;
 
     while (!stack.empty()) {
@@ -26,7 +26,7 @@ void MazeGenerator::generateMaze(Map& map) {
         for (auto [dx, dy] : std::vector<std::pair<int, int>>{{2,0},{-2,0},{0,2},{0,-2}}) {
             int nx = x + dx, ny = y + dy;
             if (isValid(nx, ny) && maze[ny][nx] == CellState::Obstacle)
-                neighbors.push_back({nx, ny});
+                neighbors.emplace_back(nx, ny);
         }
 
         if (!neighbors.empty()) {
@@ -34,12 +34,22 @@ void MazeGenerator::generateMaze(Map& map) {
             auto [nx, ny] = neighbors.front();
             maze[ny][nx] = CellState::Walkable;
             maze[y + (ny-y)/2][x + (nx-x)/2] = CellState::Walkable;
-            stack.push_back({nx, ny});
+            stack.emplace_back(nx, ny);
         } else {
             stack.pop_back();
         }
     }
+    /*
+    auto start = map.getStart();
+    auto goal = map.getGoal();
+    map.setStart({1, 1});
+    map.setGoal({width - 2, height - 2});
 
+    map.setCellState(start.x, start.y, CellState::Obstacle);
+    map.setCellState(goal.x, goal.y, CellState::Obstacle);
+    */
+    map.setCellState(0, 1, CellState::Walkable);
+    map.setCellState(width - 1, height - 2, CellState::Walkable);
     for (int i = 0; i < width; ++i)
         for (int j = 0; j < height; ++j)
             map.setCellState(i, j, maze[i][j] == CellState::Walkable ? CellState::Walkable : CellState::Obstacle);

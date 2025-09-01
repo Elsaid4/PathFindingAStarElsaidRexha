@@ -14,22 +14,16 @@
 
 class Map {
 public:
-    Map(int width, int height, float cellSize);
+    Map(int width, int height, float cellSize, sf::Font font);
     bool isWalkable(int x, int y) const;
     void setCellState(int x, int y, CellState state);
-    void draw(sf::RenderWindow& window, sf::Font& font, bool drawBorder = false, bool drawTexture = true);
+    void draw(sf::RenderWindow& window, bool drawBorder = false, bool drawTexture = true);
     void reset();
     void resetForRecalculation();
     void generateRandomObstacles(int numObstacles);
     void generateObstaclesPerlin(float threshold, float scale, int seed);
     void generateMaze();
-    void initMapAllObstacles(){
-        for (int i = 0; i < X; ++i)
-            for (int j = 0; j < Y; ++j)
-                grid[i][j] = CellState::Obstacle;
-        grid[start.x][start.y] = CellState::Start;
-        grid[goal.x][goal.y] = CellState::Goal;
-    }
+    void initMapAllObstacles();
     std::vector<std::vector<CellState>>& getGrid() { return grid; }
     int getWidth() const;
     int getHeight() const;
@@ -56,6 +50,7 @@ private:
     sf::Texture grassTexture;
     sf::Texture waterTexture;
     sf::Sprite cellSprite;
+    sf::Font font;
 };
 
 
