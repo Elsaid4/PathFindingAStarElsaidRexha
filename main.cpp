@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "AStar.h"
 #include "GameCharacter.h"
+#include "Dijkstra.h"
 
 void PrintMapConsole(const Map &map);
 
@@ -266,6 +267,7 @@ int main() {
             */
 
             auto result = AStar::findPath(map, map.getStart(), map.getGoal());
+            //auto result = Dijkstra::findPath(map, map.getStart(), map.getGoal());
 
             if(!result.second.empty()){
                 numVisitedCells = result.second.size();

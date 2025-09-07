@@ -39,15 +39,7 @@ void MazeGenerator::generateMaze(Map& map) {
             stack.pop_back();
         }
     }
-    /*
-    auto start = map.getStart();
-    auto goal = map.getGoal();
-    map.setStart({1, 1});
-    map.setGoal({width - 2, height - 2});
 
-    map.setCellState(start.x, start.y, CellState::Obstacle);
-    map.setCellState(goal.x, goal.y, CellState::Obstacle);
-    */
     map.setCellState(0, 1, CellState::Walkable);
     map.setCellState(width - 1, height - 2, CellState::Walkable);
     for (int i = 0; i < width; ++i)
