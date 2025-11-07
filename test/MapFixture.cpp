@@ -8,8 +8,8 @@
 class MapTest : public ::testing::Test {
 protected:
     Map map;
-
-    MapTest() : map(10, 10, 1) {}
+    sf::Font font;
+    MapTest() : map(10, 10, 1, font) {}
 
     void SetUp() override {
         map.setCellState(0, 0, CellState::Start);
@@ -135,6 +135,6 @@ TEST_F(MapTest, Draw) {
     sf::Font font;
     ASSERT_TRUE(font.loadFromFile("../../Font/OpenSans-VariableFont_wdth,wght.ttf")) << "Failed to load font";
 
-    map.draw(window, font);
+    map.draw(window);
     window.close();
 }

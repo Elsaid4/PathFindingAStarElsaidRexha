@@ -14,7 +14,7 @@ sf::Font font;
 int main() {
     int width = 800;
     int height = 800;
-    int menuHeight = 90;
+    int menuHeight = 120;
     sf::RenderWindow window(sf::VideoMode(width, height + menuHeight), "A* Pathfinder",sf::Style::Titlebar | sf::Style::Close);
     window.setFramerateLimit(60);
 
@@ -63,6 +63,7 @@ int main() {
     bool pWasPressed = false;
     bool tWasPressed = false;
     bool mWasPressed = false;
+    bool aWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -72,6 +73,8 @@ int main() {
 
     bool drawBorder = false;
     bool drawTexture = true;
+
+    bool useAStar = true;
 
     sf::Text text;
     text.setFont(font);
@@ -96,6 +99,11 @@ int main() {
     sf::RectangleShape showTextureButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2i showTextureButtonPosition(775, height + 73);
     showTextureButton.setPosition((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y);
+
+    // Toggle A* / Dijkstra
+    sf::RectangleShape algorithmButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2i algorithmButtonPosition(775, height + 96);
+    algorithmButton.setPosition((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y);
 
 
     // Hover shapes per le celle e i pulsanti
@@ -226,7 +234,7 @@ int main() {
         text.setPosition(10, (float)height);
         window.draw(text);
 
-        text.setString("Press 'S' to set start point\nPress 'G' to set goal point\nPress 'B' to toggle border\nPress 'T' to change texture");
+        text.setString("Press 'S' to set start point\nPress 'G' to set goal point\nPress 'B' to toggle border\nPress 'T' to change texture\nPress 'A' to toggle A*/Dijkstra");
         text.setPosition(560, (float)height);
         window.draw(text);
 
@@ -258,6 +266,9 @@ int main() {
         showTextureButton.setFillColor(drawTexture ? sf::Color::Green : sf::Color::Red);
         window.draw(showTextureButton);
 
+        algorithmButton.setFillColor(useAStar ? sf::Color::Green : sf::Color::Red);
+        window.draw(algorithmButton);
+
         if(stateHasChanged && map.getGoal() != map.getStart()){
             map.resetForRecalculation();
             /*
@@ -266,7 +277,9 @@ int main() {
             std::cout << "\n\n\n";
             */
 
-            auto result = AStar::findPath(map, map.getStart(), map.getGoal());
+            auto result = useAStar ?
+                AStar::findPath(map, map.getStart(), map.getGoal()) :
+                Dijkstra::findPath(map, map.getStart(), map.getGoal());
             //auto result = Dijkstra::findPath(map, map.getStart(), map.getGoal());
 
             if(!result.second.empty()){
@@ -391,6 +404,21 @@ int main() {
             mWasPressed = false;
         }
 
+        // Gestione del toggle dell'algoritmo
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
+            (sf::Mouse::isButtonPressed(sf::Mouse::Left)
+            && sf::Mouse::getPosition(window).x >= algorithmButtonPosition.x && sf::Mouse::getPosition(window).x <= algorithmButtonPosition.x + buttonSize.x
+            && sf::Mouse::getPosition(window).y >= algorithmButtonPosition.y && sf::Mouse::getPosition(window).y <= algorithmButtonPosition.y + buttonSize.y)) {
+            if (!aWasPressed) {
+                useAStar = !useAStar;
+                aWasPressed = true;
+                stateHasChanged = true;
+            }
+        } else {
+            aWasPressed = false;
+        }
+
+
         // Gestione dell'hover sulle celle
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
             hoverShapeCell.setPosition((float) mousePos.x * map.getCellSize(), (float) mousePos.y * map.getCellSize());
@@ -423,6 +451,11 @@ int main() {
                 && sf::Mouse::getPosition(window).y >= showTextureButtonPosition.y && sf::Mouse::getPosition(window).y <= showTextureButtonPosition.y + buttonSize.y)
         {
             hoverShapeButton.setPosition(sf::Vector2f((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y));
+        }
+        else if(sf::Mouse::getPosition(window).x >= algorithmButtonPosition.x && sf::Mouse::getPosition(window).x <= algorithmButtonPosition.x + buttonSize.x
+                && sf::Mouse::getPosition(window).y >= algorithmButtonPosition.y && sf::Mouse::getPosition(window).y <= algorithmButtonPosition.y + buttonSize.y)
+        {
+            hoverShapeButton.setPosition(sf::Vector2f((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y));
         }
         else{
             hoverShapeButton.setPosition(-100, -100);

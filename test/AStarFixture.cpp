@@ -9,8 +9,8 @@
 class AStarTest : public ::testing::Test {
 protected:
     Map map;
-
-    AStarTest() : map(10, 10, 1) {
+    sf::Font font;
+    AStarTest() :  map(10, 10, 1, font) {
         map.setCellState(0, 0, CellState::Start);
         map.setCellState(9, 9, CellState::Goal);
     }

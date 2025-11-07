@@ -3,9 +3,15 @@ project(PathFindingAStarElsaidRexha)
 
 set(CMAKE_CXX_STANDARD 23)
 
-set(SFML_DIR "C:/SFML/lib/cmake/SFML")
+include(FetchContent)
 
-find_package(SFML 2.6 COMPONENTS graphics window system REQUIRED)
+FetchContent_Declare(
+        SFML
+        GIT_REPOSITORY https://github.com/SFML/SFML.git
+        GIT_TAG        2.6.0
+)
+
+FetchContent_MakeAvailable(SFML)
 
 add_subdirectory(test)
 
@@ -22,12 +28,3 @@ add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-
-if (WIN32 AND NOT SFML_STATIC_LIBRARIES)
-    add_custom_command(TARGET PathFindingAStarElsaidRexha POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_RUNTIME_DLLS:PathFindingAStarElsaidRexha> $<TARGET_FILE_DIR:PathFindingAStarElsaidRexha>
-            COMMAND_EXPAND_LISTS
-    )
-endif()
-
-install(TARGETS ${PROJECT_NAME})
