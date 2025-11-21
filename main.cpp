@@ -83,28 +83,28 @@ int main() {
     text.setFillColor(sf::Color::Black);
 
     // Pulsanti
-    sf::Vector2i buttonSize(15, 15);
+    sf::Vector2f buttonSize(15, 15);
 
-    sf::RectangleShape startModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i startModeButtonPosition(775, height + 4);
-    startModeButton.setPosition((float) startModeButtonPosition.x, (float) startModeButtonPosition.y);
+    //sf::RectangleShape startModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2f startModeButtonPosition(775, height + 4);
+    //startModeButton.setPosition((float) startModeButtonPosition.x, (float) startModeButtonPosition.y);
 
-    sf::RectangleShape goalModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i goalModeButtonPosition(775, height + 27);
-    goalModeButton.setPosition((float) goalModeButtonPosition.x, (float) goalModeButtonPosition.y);
+    //sf::RectangleShape goalModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2f goalModeButtonPosition(775, height + 27);
+    //goalModeButton.setPosition((float) goalModeButtonPosition.x, (float) goalModeButtonPosition.y);
 
-    sf::RectangleShape borderButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i borderButtonPosition(775, height + 50);
-    borderButton.setPosition((float)borderButtonPosition.x, (float)borderButtonPosition.y);
+    //sf::RectangleShape borderButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2f borderButtonPosition(775, height + 50);
+    //borderButton.setPosition((float)borderButtonPosition.x, (float)borderButtonPosition.y);
 
-    sf::RectangleShape showTextureButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i showTextureButtonPosition(775, height + 73);
-    showTextureButton.setPosition((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y);
+    //sf::RectangleShape showTextureButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2f showTextureButtonPosition(775, height + 73);
+    //showTextureButton.setPosition((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y);
 
     // Toggle A* / Dijkstra
-    sf::RectangleShape algorithmButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
-    sf::Vector2i algorithmButtonPosition(775, height + 96);
-    algorithmButton.setPosition((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y);
+    //sf::RectangleShape algorithmButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
+    sf::Vector2f algorithmButtonPosition(775, height + 96);
+    //algorithmButton.setPosition((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y);
 
 
     // Hover shapes per le celle e i pulsanti
@@ -121,9 +121,11 @@ int main() {
     std::vector<sf::Vector2i> path;
 
     std::vector<Button> buttons;
-    for (int i = 0; i < 4; i++) {
-        buttons.emplace_back(10 + i * 60, height + 10, 50, 30, true);
-    }
+    buttons.emplace_back(startModeButtonPosition, buttonSize, startSetMode, sf::Keyboard::Key::S, true);
+    buttons.emplace_back(goalModeButtonPosition, buttonSize, goalSetMode, sf::Keyboard::Key::G, true);
+    buttons.emplace_back(borderButtonPosition, buttonSize, drawBorder, sf::Keyboard::Key::B, true);
+    buttons.emplace_back(showTextureButtonPosition, buttonSize, drawTexture, sf::Keyboard::Key::B, true);
+    buttons.emplace_back(algorithmButtonPosition, buttonSize, useAStar, sf::Keyboard::Key::A, true);
 
 
     while (window.isOpen()) {
@@ -135,6 +137,8 @@ int main() {
         sf::Vector2i mousePos = sf::Mouse::getPosition(window);
         mousePos.x /= (int)map.getCellSize();
         mousePos.y /= (int)map.getCellSize();
+
+        sf::Vector2f mousePosAbsolute = sf::Vector2f(sf::Mouse::getPosition(window));
 
         if(editMode){
             window.clear(sf::Color::White);
@@ -183,8 +187,8 @@ int main() {
             // Gestione della modalità di piazzamento del punto di partenza
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
                (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-               && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
-               && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y) {
+               && mousePosAbsolute.x >= startModeButtonPosition.x && mousePosAbsolute.x <= startModeButtonPosition.x + buttonSize.x
+               && mousePosAbsolute.y >= startModeButtonPosition.y && mousePosAbsolute.y <= startModeButtonPosition.y + buttonSize.y) {
                 if (!sWasPressed) {
                     startSetMode = !startSetMode;
                     goalSetMode = false;
@@ -197,8 +201,8 @@ int main() {
             // Gestione della modalità di piazzamento del punto di arrivo
             if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
                 (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y) {
+                && mousePosAbsolute.x >= goalModeButtonPosition.x && mousePosAbsolute.x <= goalModeButtonPosition.x + buttonSize.x
+                && mousePosAbsolute.y >= goalModeButtonPosition.y && mousePosAbsolute.y <= goalModeButtonPosition.y + buttonSize.y) {
                 if (!gWasPressed) {
                     goalSetMode = !goalSetMode;
                     startSetMode = false;
@@ -259,7 +263,7 @@ int main() {
         text.setStyle(sf::Text::Regular);
 
 
-
+        /*
         // Gestione dei pulsanti
         borderButton.setFillColor(drawBorder ? sf::Color::Green : sf::Color::Red);
         window.draw(borderButton);
@@ -275,6 +279,7 @@ int main() {
 
         algorithmButton.setFillColor(useAStar ? sf::Color::Green : sf::Color::Red);
         window.draw(algorithmButton);
+        */
 
         if(stateHasChanged && map.getGoal() != map.getStart()){
             map.resetForRecalculation();
@@ -343,8 +348,8 @@ int main() {
         // Gestione bottone per il bordo
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            && sf::Mouse::getPosition(window).x >= borderButtonPosition.x && sf::Mouse::getPosition(window).x <= borderButtonPosition.x + buttonSize.x
-            && sf::Mouse::getPosition(window).y >= borderButtonPosition.y && sf::Mouse::getPosition(window).y <= borderButtonPosition.y + buttonSize.y) {
+            && mousePosAbsolute.x >= borderButtonPosition.x && mousePosAbsolute.x <= borderButtonPosition.x + buttonSize.x
+            && mousePosAbsolute.y >= borderButtonPosition.y && mousePosAbsolute.y <= borderButtonPosition.y + buttonSize.y) {
             if (!bWasPressed) {
                 drawBorder = !drawBorder;
                 bWasPressed = true;
@@ -414,8 +419,8 @@ int main() {
         // Gestione del toggle dell'algoritmo
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-            && sf::Mouse::getPosition(window).x >= algorithmButtonPosition.x && sf::Mouse::getPosition(window).x <= algorithmButtonPosition.x + buttonSize.x
-            && sf::Mouse::getPosition(window).y >= algorithmButtonPosition.y && sf::Mouse::getPosition(window).y <= algorithmButtonPosition.y + buttonSize.y)) {
+            && mousePosAbsolute.x >= algorithmButtonPosition.x && mousePosAbsolute.x <= algorithmButtonPosition.x + buttonSize.x
+            && mousePosAbsolute.y >= algorithmButtonPosition.y && mousePosAbsolute.y <= algorithmButtonPosition.y + buttonSize.y)) {
             if (!aWasPressed) {
                 useAStar = !useAStar;
                 aWasPressed = true;
@@ -437,6 +442,7 @@ int main() {
         map.draw(window, drawBorder, drawTexture);
 
 
+        /*
         // TODO: Migliore gestione dei pulsanti con classe dedicata
         // Gestione dell'hover sui bottoni
         if(editMode && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
@@ -468,13 +474,13 @@ int main() {
             hoverShapeButton.setPosition(-100, -100);
         }
 
-        window.draw(hoverShapeCell);
         window.draw(hoverShapeButton);
+        */
 
+        window.draw(hoverShapeCell);
 
-        for (int i = 0; i < buttons.capacity(); ++i) {
+        for (int i = 0; i < buttons.size(); ++i) {
             sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
-
             if (buttons[i].isHovered(mousePosition)) {
                 window.draw(buttons[i].getHoverShape());
             }
