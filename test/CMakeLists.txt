@@ -4,7 +4,7 @@ add_subdirectory(./lib/googletest)
 set(gtest_SOURCE_DIR, ./lib/googletest/)
 include_directories(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
 
-set(SOURCE_FILES ../Map.cpp ../AStar.cpp)
+set(SOURCE_FILES ../Map.cpp ../AStar.cpp ../Dijkstra.cpp ../MazeGenerator.cpp)
 set(TEST_SOURCE_FILES runAllTests.cpp MapFixture.cpp
         AStarFixture.cpp
 )

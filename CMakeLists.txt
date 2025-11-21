@@ -24,7 +24,9 @@ add_executable(PathFindingAStarElsaidRexha main.cpp Map.cpp Map.h CellState.h
         MazeGenerator.cpp
         MazeGenerator.h
         Dijkstra.cpp
-        Dijkstra.h)
+        Dijkstra.h
+        Utility/Button.cpp
+        Utility/Button.h)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-window sfml-system)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

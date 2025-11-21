@@ -6,6 +6,7 @@
 #include "AStar.h"
 #include "GameCharacter.h"
 #include "Dijkstra.h"
+#include "Utility/Button.h"
 
 void PrintMapConsole(const Map &map);
 
@@ -118,6 +119,12 @@ int main() {
     hoverShapeButton.setOutlineThickness(2);
 
     std::vector<sf::Vector2i> path;
+
+    std::vector<Button> buttons;
+    for (int i = 0; i < 4; i++) {
+        buttons.emplace_back(10 + i * 60, height + 10, 50, 30, true);
+    }
+
 
     while (window.isOpen()) {
         sf::Event event;
@@ -463,6 +470,20 @@ int main() {
 
         window.draw(hoverShapeCell);
         window.draw(hoverShapeButton);
+
+
+        for (int i = 0; i < buttons.capacity(); ++i) {
+            sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
+
+            if (buttons[i].isHovered(mousePosition)) {
+                window.draw(buttons[i].getHoverShape());
+            }
+            if (buttons[i].checkClick(mousePosition, sf::Mouse::isButtonPressed(sf::Mouse::Left)))
+                std::cout << "Button " << i << " clicked!\n";
+            buttons[i].setColor();
+
+            window.draw(buttons[i].getShape());
+        }
 
         player.draw(window);
 
