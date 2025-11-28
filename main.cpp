@@ -40,11 +40,6 @@ int main() {
     //map.generateObstaclesPerlin(threshold, scale, gen());
     map.generateMaze();
 
-    /*
-    std::cout << "Mappa iniziale\n";
-    PrintMapConsole(map);
-    */
-
     GameCharacter player(map.getStart(), map.getCellSize());
     sf::Clock clock;
     float moveDelay = 0.1f;
@@ -56,15 +51,10 @@ int main() {
 
     // Variabili per la gestione dei pulsanti. Per evitare che il tasto venga premuto più volte in un frame.
     bool dWasPressed = false;
-    bool sWasPressed = false;
-    bool gWasPressed = false;
     bool rWasPressed = false;
-    bool bWasPressed = false;
     bool eWasPressed = false;
     bool pWasPressed = false;
-    bool tWasPressed = false;
     bool mWasPressed = false;
-    bool aWasPressed = false;
 
     // Inizializzo a true per forzare il calcolo del percorso all'inizio
     bool stateHasChanged = true;
@@ -84,27 +74,11 @@ int main() {
 
     // Pulsanti
     sf::Vector2f buttonSize(15, 15);
-
-    //sf::RectangleShape startModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2f startModeButtonPosition(775, height + 4);
-    //startModeButton.setPosition((float) startModeButtonPosition.x, (float) startModeButtonPosition.y);
-
-    //sf::RectangleShape goalModeButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2f goalModeButtonPosition(775, height + 27);
-    //goalModeButton.setPosition((float) goalModeButtonPosition.x, (float) goalModeButtonPosition.y);
-
-    //sf::RectangleShape borderButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2f borderButtonPosition(775, height + 50);
-    //borderButton.setPosition((float)borderButtonPosition.x, (float)borderButtonPosition.y);
-
-    //sf::RectangleShape showTextureButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2f showTextureButtonPosition(775, height + 73);
-    //showTextureButton.setPosition((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y);
-
-    // Toggle A* / Dijkstra
-    //sf::RectangleShape algorithmButton(sf::Vector2f((float)buttonSize.x, (float)buttonSize.y));
     sf::Vector2f algorithmButtonPosition(775, height + 96);
-    //algorithmButton.setPosition((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y);
 
 
     // Hover shapes per le celle e i pulsanti
@@ -149,7 +123,6 @@ int main() {
             if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
                 if(sf::Mouse::isButtonPressed(sf::Mouse::Right)){
                     if(map.canPlaceWalkable(mousePos.x, mousePos.y)){
-                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") walkable\n";
                         map.setCellState(mousePos.x, mousePos.y, CellState::Walkable);
                         stateHasChanged = true;
                         numObstacles--;
@@ -158,7 +131,6 @@ int main() {
                 else if(sf::Mouse::isButtonPressed(sf::Mouse::Left)){
                     // Si posiziona start/goal con il tasto sinistro. Si verifica se si è in modalità, altrimenti si piazza un ostacolo
                     if(startSetMode){
-                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") start\n";
                         if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
                             numObstacles--;
                         }
@@ -167,7 +139,6 @@ int main() {
                         stateHasChanged = true;
                     }
                     else if(goalSetMode){
-                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") goal\n";
                         if(map.getCellState(mousePos.x, mousePos.y) == CellState::Obstacle){
                             numObstacles--;
                         }
@@ -176,7 +147,6 @@ int main() {
                         stateHasChanged = true;
                     }
                     else if(map.canPlaceObstacle(mousePos.x, mousePos.y)){
-                        //std::cout << "Cella (" << mousePos.x << ", " << mousePos.y << ") ostacolo\n";
                         map.setCellState(mousePos.x, mousePos.y, CellState::Obstacle);
                         stateHasChanged = true;
                         numObstacles++;
@@ -184,7 +154,7 @@ int main() {
                 }
             }
 
-            // prendi i pulsanti goal e start e gestisci il loro stato
+            // Gestione dei pulsanti start e goal
             for (auto& button : buttons) {
                 if (button.getLabel() == "start") {
                     if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
@@ -216,35 +186,6 @@ int main() {
                     }
                 }
             }
-            /*
-            // Gestione della modalità di piazzamento del punto di partenza
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
-               (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-               && mousePosAbsolute.x >= startModeButtonPosition.x && mousePosAbsolute.x <= startModeButtonPosition.x + buttonSize.x
-               && mousePosAbsolute.y >= startModeButtonPosition.y && mousePosAbsolute.y <= startModeButtonPosition.y + buttonSize.y) {
-                if (!sWasPressed) {
-                    startSetMode = !startSetMode;
-                    goalSetMode = false;
-                    sWasPressed = true;
-                }
-            } else {
-                sWasPressed = false;
-            }
-
-            // Gestione della modalità di piazzamento del punto di arrivo
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::G) ||
-                (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-                && mousePosAbsolute.x >= goalModeButtonPosition.x && mousePosAbsolute.x <= goalModeButtonPosition.x + buttonSize.x
-                && mousePosAbsolute.y >= goalModeButtonPosition.y && mousePosAbsolute.y <= goalModeButtonPosition.y + buttonSize.y) {
-                if (!gWasPressed) {
-                    goalSetMode = !goalSetMode;
-                    startSetMode = false;
-                    gWasPressed = true;
-                }
-            } else {
-                gWasPressed = false;
-            }
-            */
 
         } else{
             window.clear(sf::Color(150, 150, 150));
@@ -296,32 +237,9 @@ int main() {
         window.draw(text);
         text.setStyle(sf::Text::Regular);
 
-
-        /*
-        // Gestione dei pulsanti
-        borderButton.setFillColor(drawBorder ? sf::Color::Green : sf::Color::Red);
-        window.draw(borderButton);
-
-        startModeButton.setFillColor(startSetMode ? sf::Color::Green : sf::Color::Red);
-        window.draw(startModeButton);
-
-        goalModeButton.setFillColor(goalSetMode ? sf::Color::Green : sf::Color::Red);
-        window.draw(goalModeButton);
-
-        showTextureButton.setFillColor(drawTexture ? sf::Color::Green : sf::Color::Red);
-        window.draw(showTextureButton);
-
-        algorithmButton.setFillColor(useAStar ? sf::Color::Green : sf::Color::Red);
-        window.draw(algorithmButton);
-        */
-
+        // Calcolo del percorso se lo stato della mappa è cambiato
         if(stateHasChanged && map.getGoal() != map.getStart()){
             map.resetForRecalculation();
-            /*
-            std::cout << "Prima\n";
-            PrintMapConsole(map);
-            std::cout << "\n\n\n";
-            */
 
             auto result = useAStar ?
                 AStar::findPath(map, map.getStart(), map.getGoal()) :
@@ -346,28 +264,8 @@ int main() {
             }
 
             stateHasChanged = false;
-
-            /*
-            std::cout << "DOPO\n";
-            PrintMapConsole(map);
-            std::cout << "\n\n\n";
-            */
         }
 
-        /*
-        // Gestione del pulsante per il toggle delle texture
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ||
-            (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            && sf::Mouse::getPosition(window).x >= showTextureButtonPosition.x && sf::Mouse::getPosition(window).x <= showTextureButtonPosition.x + buttonSize.x
-            && sf::Mouse::getPosition(window).y >= showTextureButtonPosition.y && sf::Mouse::getPosition(window).y <= showTextureButtonPosition.y + buttonSize.y) {
-            if (!tWasPressed) {
-                drawTexture = !drawTexture;
-                tWasPressed = true;
-            }
-        } else {
-            tWasPressed = false;
-        }
-        */
 
         // Gestione per il debug mode
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
@@ -378,21 +276,6 @@ int main() {
         } else {
             dWasPressed = false;
         }
-
-        /*
-        // Gestione bottone per il bordo
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) ||
-            (sf::Mouse::isButtonPressed(sf::Mouse::Left))
-            && mousePosAbsolute.x >= borderButtonPosition.x && mousePosAbsolute.x <= borderButtonPosition.x + buttonSize.x
-            && mousePosAbsolute.y >= borderButtonPosition.y && mousePosAbsolute.y <= borderButtonPosition.y + buttonSize.y) {
-            if (!bWasPressed) {
-                drawBorder = !drawBorder;
-                bWasPressed = true;
-            }
-        } else {
-            bWasPressed = false;
-        }
-        */
 
         // Gestione del reset della mappa
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
@@ -452,22 +335,7 @@ int main() {
             mWasPressed = false;
         }
 
-        /*
-        // Gestione del toggle dell'algoritmo
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
-            (sf::Mouse::isButtonPressed(sf::Mouse::Left)
-            && mousePosAbsolute.x >= algorithmButtonPosition.x && mousePosAbsolute.x <= algorithmButtonPosition.x + buttonSize.x
-            && mousePosAbsolute.y >= algorithmButtonPosition.y && mousePosAbsolute.y <= algorithmButtonPosition.y + buttonSize.y)) {
-            if (!aWasPressed) {
-                useAStar = !useAStar;
-                aWasPressed = true;
-                stateHasChanged = true;
-            }
-        } else {
-            aWasPressed = false;
-        }
-        */
-
+        // Gestione dei pulsanti
         for (auto& button : buttons) {
             if (button.getLabel() == "border") {
                 if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
@@ -502,56 +370,14 @@ int main() {
         map.draw(window, drawBorder, drawTexture);
 
 
-        /*
-        // TODO: Migliore gestione dei pulsanti con classe dedicata
-        // Gestione dell'hover sui bottoni
-        if(editMode && sf::Mouse::getPosition(window).x >= goalModeButtonPosition.x && sf::Mouse::getPosition(window).x <= goalModeButtonPosition.x + buttonSize.x
-           && sf::Mouse::getPosition(window).y >= goalModeButtonPosition.y && sf::Mouse::getPosition(window).y <= goalModeButtonPosition.y + buttonSize.y)
-        {
-            hoverShapeButton.setPosition(sf::Vector2f((float) goalModeButtonPosition.x, (float) goalModeButtonPosition.y));
-        }
-        else if(editMode && sf::Mouse::getPosition(window).x >= startModeButtonPosition.x && sf::Mouse::getPosition(window).x <= startModeButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= startModeButtonPosition.y && sf::Mouse::getPosition(window).y <= startModeButtonPosition.y + buttonSize.y)
-        {
-            hoverShapeButton.setPosition(sf::Vector2f((float) startModeButtonPosition.x, (float) startModeButtonPosition.y));
-        }
-        else if(sf::Mouse::getPosition(window).x >= borderButtonPosition.x && sf::Mouse::getPosition(window).x <= borderButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= borderButtonPosition.y && sf::Mouse::getPosition(window).y <= borderButtonPosition.y + buttonSize.y)
-        {
-            hoverShapeButton.setPosition(sf::Vector2f((float) borderButtonPosition.x, (float) borderButtonPosition.y));
-        }
-        else if(sf::Mouse::getPosition(window).x >= showTextureButtonPosition.x && sf::Mouse::getPosition(window).x <= showTextureButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= showTextureButtonPosition.y && sf::Mouse::getPosition(window).y <= showTextureButtonPosition.y + buttonSize.y)
-        {
-            hoverShapeButton.setPosition(sf::Vector2f((float) showTextureButtonPosition.x, (float) showTextureButtonPosition.y));
-        }
-        else if(sf::Mouse::getPosition(window).x >= algorithmButtonPosition.x && sf::Mouse::getPosition(window).x <= algorithmButtonPosition.x + buttonSize.x
-                && sf::Mouse::getPosition(window).y >= algorithmButtonPosition.y && sf::Mouse::getPosition(window).y <= algorithmButtonPosition.y + buttonSize.y)
-        {
-            hoverShapeButton.setPosition(sf::Vector2f((float) algorithmButtonPosition.x, (float) algorithmButtonPosition.y));
-        }
-        else{
-            hoverShapeButton.setPosition(-100, -100);
-        }
-
-        window.draw(hoverShapeButton);
-        */
-
         window.draw(hoverShapeCell);
 
-        for (int i = 0; i < buttons.size(); ++i) {
-            sf::Vector2f mousePosition = sf::Vector2f(sf::Mouse::getPosition(window));
-            if (buttons[i].isHovered(mousePosition)) {
-                window.draw(buttons[i].getHoverShape());
-            }
-            /*
-            if (buttons[i].checkClick(mousePosition, sf::Mouse::isButtonPressed(sf::Mouse::Left))) {
-                std::cout<<"Button " << buttons[i].getLabel() << " state: " << buttons[i].getState() << "\n";
-            }
-            */
-            buttons[i].setColor();
-
-            window.draw(buttons[i].getShape());
+        // Gestione grafica dei pulsanti
+        for (auto & button : buttons) {
+            if (button.isHovered(mousePosAbsolute))
+                window.draw(button.getHoverShape());
+            button.setColor();
+            window.draw(button.getShape());
         }
 
         player.draw(window);
