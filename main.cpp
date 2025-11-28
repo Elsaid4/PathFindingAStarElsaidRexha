@@ -121,11 +121,11 @@ int main() {
     std::vector<sf::Vector2i> path;
 
     std::vector<Button> buttons;
-    buttons.emplace_back(startModeButtonPosition, buttonSize, startSetMode, sf::Keyboard::Key::S, true);
-    buttons.emplace_back(goalModeButtonPosition, buttonSize, goalSetMode, sf::Keyboard::Key::G, true);
-    buttons.emplace_back(borderButtonPosition, buttonSize, drawBorder, sf::Keyboard::Key::B, true);
-    buttons.emplace_back(showTextureButtonPosition, buttonSize, drawTexture, sf::Keyboard::Key::B, true);
-    buttons.emplace_back(algorithmButtonPosition, buttonSize, useAStar, sf::Keyboard::Key::A, true);
+    buttons.emplace_back("start", startModeButtonPosition, buttonSize, startSetMode, sf::Keyboard::Key::S, true);
+    buttons.emplace_back("goal", goalModeButtonPosition, buttonSize, goalSetMode, sf::Keyboard::Key::G, true);
+    buttons.emplace_back("border", borderButtonPosition, buttonSize, drawBorder, sf::Keyboard::Key::B, true);
+    buttons.emplace_back("texture", showTextureButtonPosition, buttonSize, drawTexture, sf::Keyboard::Key::T, true);
+    buttons.emplace_back("algorithm", algorithmButtonPosition, buttonSize, useAStar, sf::Keyboard::Key::A, true);
 
 
     while (window.isOpen()) {
@@ -138,7 +138,7 @@ int main() {
         mousePos.x /= (int)map.getCellSize();
         mousePos.y /= (int)map.getCellSize();
 
-        sf::Vector2f mousePosAbsolute = sf::Vector2f(sf::Mouse::getPosition(window));
+        auto mousePosAbsolute = sf::Vector2f(sf::Mouse::getPosition(window));
 
         if(editMode){
             window.clear(sf::Color::White);
@@ -184,6 +184,39 @@ int main() {
                 }
             }
 
+            // prendi i pulsanti goal e start e gestisci il loro stato
+            for (auto& button : buttons) {
+                if (button.getLabel() == "start") {
+                    if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
+                        sf::Keyboard::isKeyPressed(sf::Keyboard::S) ? sf::Keyboard::S : sf::Keyboard::Unknown)) {
+                        std::cout<<"Button " << button.getLabel() << " state: " << (button.getState() ? "true" : "false") << "\n";
+                        startSetMode = button.getState();
+                        if (startSetMode) {
+                            for (auto& otherButton : buttons) {
+                                if (otherButton.getLabel() == "goal") {
+                                    otherButton.setState(false);
+                                    goalSetMode = false;
+                                }
+                            }
+                        }
+                    }
+                } else if (button.getLabel() == "goal") {
+                    if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
+                        sf::Keyboard::isKeyPressed(sf::Keyboard::G) ? sf::Keyboard::G : sf::Keyboard::Unknown)) {
+                        std::cout<<"Button " << button.getLabel() << " state: " << (button.getState() ? "true" : "false") << "\n";
+                        goalSetMode = button.getState();
+                        if (goalSetMode) {
+                            for (auto& otherButton : buttons) {
+                                if (otherButton.getLabel() == "start") {
+                                    otherButton.setState(false);
+                                    startSetMode = false;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            /*
             // Gestione della modalità di piazzamento del punto di partenza
             if(sf::Keyboard::isKeyPressed(sf::Keyboard::S) ||
                (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -211,6 +244,7 @@ int main() {
             } else {
                 gWasPressed = false;
             }
+            */
 
         } else{
             window.clear(sf::Color(150, 150, 150));
@@ -320,6 +354,7 @@ int main() {
             */
         }
 
+        /*
         // Gestione del pulsante per il toggle delle texture
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::T) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -332,6 +367,7 @@ int main() {
         } else {
             tWasPressed = false;
         }
+        */
 
         // Gestione per il debug mode
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::D)) {
@@ -343,8 +379,7 @@ int main() {
             dWasPressed = false;
         }
 
-
-
+        /*
         // Gestione bottone per il bordo
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::B) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left))
@@ -357,6 +392,7 @@ int main() {
         } else {
             bWasPressed = false;
         }
+        */
 
         // Gestione del reset della mappa
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
@@ -416,6 +452,7 @@ int main() {
             mWasPressed = false;
         }
 
+        /*
         // Gestione del toggle dell'algoritmo
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) ||
             (sf::Mouse::isButtonPressed(sf::Mouse::Left)
@@ -429,7 +466,30 @@ int main() {
         } else {
             aWasPressed = false;
         }
+        */
 
+        for (auto& button : buttons) {
+            if (button.getLabel() == "border") {
+                if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::B) ? sf::Keyboard::B : sf::Keyboard::Unknown)) {
+                    //std::cout<<"Button " << button.getLabel() << " state: " << (button.getState() ? "true" : "false") << "\n";
+                    drawBorder = button.getState();
+                }
+            } else if (button.getLabel() == "texture") {
+                if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::T) ? sf::Keyboard::T : sf::Keyboard::Unknown)) {
+                    //std::cout<<"Button " << button.getLabel() << " state: " << (button.getState() ? "true" : "false") << "\n";
+                    drawTexture = button.getState();
+                }
+            } else if (button.getLabel() == "algorithm") {
+                if (button.checkClick(mousePosAbsolute, sf::Mouse::isButtonPressed(sf::Mouse::Left),
+                    sf::Keyboard::isKeyPressed(sf::Keyboard::A) ? sf::Keyboard::A : sf::Keyboard::Unknown)) {
+                    //std::cout<<"Button " << button.getLabel() << " state: " << (button.getState() ? "true" : "false") << "\n";
+                    useAStar = button.getState();
+                    stateHasChanged = true;
+                }
+            }
+        }
 
         // Gestione dell'hover sulle celle
         if(mousePos.x >= 0 && mousePos.x < map.getWidth() && mousePos.y >= 0 && mousePos.y < map.getHeight()){
@@ -484,8 +544,11 @@ int main() {
             if (buttons[i].isHovered(mousePosition)) {
                 window.draw(buttons[i].getHoverShape());
             }
-            if (buttons[i].checkClick(mousePosition, sf::Mouse::isButtonPressed(sf::Mouse::Left)))
-                std::cout << "Button " << i << " clicked!\n";
+            /*
+            if (buttons[i].checkClick(mousePosition, sf::Mouse::isButtonPressed(sf::Mouse::Left))) {
+                std::cout<<"Button " << buttons[i].getLabel() << " state: " << buttons[i].getState() << "\n";
+            }
+            */
             buttons[i].setColor();
 
             window.draw(buttons[i].getShape());

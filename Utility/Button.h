@@ -9,6 +9,7 @@
 
 class Button {
 private:
+    std::string lable;
     float x, y, width, height;
     bool isPressed;
     bool lastMousePressed;
@@ -18,8 +19,8 @@ private:
     sf::RectangleShape shape;
     sf::RectangleShape hoverShape;
 public:
-    Button(float x, float y, float width, float height, bool isToggleButton = false)
-        : x(x), y(y), width(width), height(height), isPressed(false), lastMousePressed(false), isToggleButton(isToggleButton) {
+    Button(std::string lable, float x, float y, float width, float height, bool isToggleButton = false)
+        : lable(lable), x(x), y(y), width(width), height(height), isPressed(false), lastMousePressed(false), isToggleButton(isToggleButton) {
         shape.setSize(sf::Vector2f(width, height));
         shape.setPosition(x, y);
         shape.setFillColor(sf::Color::Green);
@@ -31,8 +32,8 @@ public:
         hoverShape.setOutlineThickness(2);
     }
 
-    Button(const sf::Vector2f position, const sf::Vector2f size, bool pressed, sf::Keyboard::Key keyAssociated, bool isToggleButton = false)
-        : Button(position.x, position.y, size.x, size.y, isToggleButton) {
+    Button(std::string lable, const sf::Vector2f position, const sf::Vector2f size, bool pressed, sf::Keyboard::Key keyAssociated, bool isToggleButton = false)
+        : Button(lable, position.x, position.y, size.x, size.y, isToggleButton) {
         key = keyAssociated;
         isPressed = pressed;
     }
@@ -82,7 +83,7 @@ public:
     }
 
     void setColor() {
-        shape.setFillColor(isPressed ? sf::Color::Red : sf::Color::Green);
+        shape.setFillColor(!isPressed ? sf::Color::Red : sf::Color::Green);
     }
 
     bool isHovered(const sf::Vector2f mousePos) const {
@@ -99,6 +100,10 @@ public:
     float getY() const { return y; }
     float getWidth() const { return width; }
     float getHeight() const { return height; }
+
+    std::string getLabel() const { return lable; }
+    bool getState() const { return isPressed; }
+    void setState(bool state) { isPressed = state; }
 
 };
 
