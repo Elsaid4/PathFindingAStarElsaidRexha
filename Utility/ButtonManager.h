@@ -81,7 +81,7 @@ public:
     void setCanBeUsedButton(const std::string& id, const bool b) {
         for (auto& but : buttons) {
             if (but.getId() == id) {
-                but.setCanBeUsed(b);
+                but.setEnabled(b);
                 break;
             }
         }

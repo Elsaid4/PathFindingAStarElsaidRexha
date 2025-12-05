@@ -19,9 +19,10 @@ private:
     sf::RectangleShape shape;
     sf::RectangleShape hoverShape;
     sf::Text labelText;
-    
-    bool canBeUsed = true;
-        
+
+    bool enabled = true;
+    bool disabled = !enabled;
+
     bool state = false;
     bool lastMousePressed = false;
     bool lastKeyPressed = false;
@@ -72,7 +73,7 @@ public:
     bool handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
         bool changed = false;
 
-        if (!canBeUsed) {
+        if (disabled) {
             setColor();
             return false;
         }
@@ -120,7 +121,7 @@ public:
 
 
     void setColor() {
-        if (!canBeUsed)
+        if (disabled)
             shape.setFillColor(sf::Color(100, 100, 100)); // grigio se non utilizzabile
         else
             shape.setFillColor(!state ? sf::Color::Red : sf::Color::Green);
@@ -134,7 +135,7 @@ public:
 
     std::string getId() const { return id; }
 
-    void setCanBeUsed(bool b) { canBeUsed = b; }
+    void setEnabled(bool b) { enabled = b; disabled = !b; }
 
 
 
