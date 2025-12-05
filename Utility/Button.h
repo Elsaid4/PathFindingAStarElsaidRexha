@@ -71,31 +71,35 @@ public:
     /// Processa un evento; ritorna true se lo stato è cambiato
     bool handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
         bool changed = false;
-        if (canBeUsed) {
-            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && !lastMousePressed) {
-                sf::Vector2f mousePos = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
-                if (contains(mousePos)) {
-                    if (type == Type::Toggle) {
-                        state = !state;
-                    } else {
-                        // momentary: set true, caller può resettare se necessario
-                        state = true;
-                    }
-                    changed = true;
-                    if (onChange)
-                        onChange(state);
-                }
-            } else if (event.type == sf::Event::KeyReleased && event.key.code == hotkey && hotkey != sf::Keyboard::Unknown && !lastKeyPressed) {
+
+        if (!canBeUsed) {
+            setColor();
+            return false;
+        }
+
+        if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && !lastMousePressed) {
+            sf::Vector2f mousePos = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
+            if (contains(mousePos)) {
                 if (type == Type::Toggle) {
                     state = !state;
-                }
-                else {
+                } else {
+                    // momentary: set true, caller può resettare se necessario
                     state = true;
                 }
                 changed = true;
                 if (onChange)
                     onChange(state);
             }
+        } else if (event.type == sf::Event::KeyReleased && event.key.code == hotkey && hotkey != sf::Keyboard::Unknown && !lastKeyPressed) {
+            if (type == Type::Toggle) {
+                state = !state;
+            }
+            else {
+                state = true;
+            }
+            changed = true;
+            if (onChange)
+                onChange(state);
         }
         lastMousePressed = event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left;
         lastKeyPressed = event.type == sf::Event::KeyReleased && event.key.code == hotkey;
@@ -116,7 +120,10 @@ public:
 
 
     void setColor() {
-        shape.setFillColor(!state ? sf::Color::Red : sf::Color::Green);
+        if (!canBeUsed)
+            shape.setFillColor(sf::Color(100, 100, 100)); // grigio se non utilizzabile
+        else
+            shape.setFillColor(!state ? sf::Color::Red : sf::Color::Green);
     }
 
     bool getState() const { return state; }
