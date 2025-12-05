@@ -4,106 +4,132 @@
 
 #ifndef BUTTON_H
 #define BUTTON_H
+#include <SFML/Graphics.hpp>
+#include <functional>
+#include <string>
+#include <utility>
 
 
+enum class Type { Toggle, Standard };
 
 class Button {
 private:
-    std::string lable;
-    float x, y, width, height;
-    bool isPressed;
-    bool lastMousePressed;
-    bool lastKeyPressed;
-    bool isToggleButton;
-    sf::Keyboard::Key key;
+    std::string id;
+    std::string group;              // Per eventuali gruppi di bottoni (es. radio buttons). Se vuoto, il bottone non appartiene a nessun gruppo.
     sf::RectangleShape shape;
     sf::RectangleShape hoverShape;
+    sf::Text labelText;
+    
+    bool canBeUsed = true;
+        
+    bool state = false;
+    bool lastMousePressed = false;
+    bool lastKeyPressed = false;
+    sf::Keyboard::Key hotkey = sf::Keyboard::Unknown;;
+    Type type = Type::Toggle;
 public:
-    Button(std::string lable, float x, float y, float width, float height, bool isToggleButton = false)
-        : lable(lable), x(x), y(y), width(width), height(height), isPressed(false), lastMousePressed(false), isToggleButton(isToggleButton) {
-        shape.setSize(sf::Vector2f(width, height));
-        shape.setPosition(x, y);
-        shape.setFillColor(sf::Color::Green);
+    std::function<void(bool)> onChange; // Chiamata quando lo stato cambia
 
-        hoverShape.setSize(sf::Vector2f(width, height));
-        hoverShape.setPosition(x, y);
+
+    Button(std::string  id_,
+           const std::string& label,
+           const sf::Vector2f& pos,
+           const sf::Vector2f& size,
+           const Type t = Type::Toggle,
+           const sf::Keyboard::Key key = sf::Keyboard::Unknown,
+           const sf::Font* font = nullptr)
+        : id(std::move(id_)), hotkey(key), type(t)
+    {
+        shape.setSize(size);
+        shape.setPosition(pos);
+        shape.setFillColor(sf::Color::Green);
+        shape.setOutlineColor(sf::Color::Black);
+        shape.setOutlineThickness(1.f);
+
+        hoverShape = shape;
         hoverShape.setFillColor(sf::Color(0, 0, 0, 50));
         hoverShape.setOutlineColor(sf::Color::Black);
         hoverShape.setOutlineThickness(2);
-    }
 
-    Button(std::string lable, const sf::Vector2f position, const sf::Vector2f size, bool pressed, sf::Keyboard::Key keyAssociated, bool isToggleButton = false)
-        : Button(lable, position.x, position.y, size.x, size.y, isToggleButton) {
-        key = keyAssociated;
-        isPressed = pressed;
-    }
-
-    bool checkClick(const sf::Vector2f mousePos, const bool mousePressed, sf::Keyboard::Key keyPressed = sf::Keyboard::Unknown) {
-        bool clicked = false;
-        if (keyPressed == key && !lastKeyPressed) {
-            if (isToggleButton) {
-                isPressed = !isPressed;
-                clicked = true;
-            }
-            else {
-                if (!isPressed) {
-                    isPressed = true;
-                    clicked = true;
-                }
-            }
+        if (font) {
+            labelText.setFont(*font);
+            labelText.setString(label);
+            labelText.setCharacterSize(12);
+            labelText.setFillColor(sf::Color::Black);
+            // center text roughly
+            sf::FloatRect tb = labelText.getLocalBounds();
+            labelText.setPosition(pos.x + (size.x - tb.width) / 2.f - tb.left,
+                                  pos.y + (size.y - tb.height) / 2.f - tb.top);
         }
-        else {
-            if (isHovered(mousePos)) {
-                // rileva fronte di salita: tasto premuto adesso ma non prima
-                if (mousePressed && !lastMousePressed) {
-                    if (isToggleButton) {
-                        isPressed = !isPressed;
-                        clicked = true;
+    }
+
+    /// Controlla se un punto passato è all'interno del pulsante.
+    bool contains(const sf::Vector2f& point) const {
+        return shape.getGlobalBounds().contains(point);
+    }
+
+    /// Processa un evento; ritorna true se lo stato è cambiato
+    bool handleEvent(const sf::Event& event, const sf::RenderWindow& window) {
+        bool changed = false;
+        if (canBeUsed) {
+            if (event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left && !lastMousePressed) {
+                sf::Vector2f mousePos = window.mapPixelToCoords({event.mouseButton.x, event.mouseButton.y});
+                if (contains(mousePos)) {
+                    if (type == Type::Toggle) {
+                        state = !state;
                     } else {
-                        if (!isPressed) {
-                            isPressed = true;
-                            clicked = true;
-                        }
+                        // momentary: set true, caller può resettare se necessario
+                        state = true;
                     }
+                    changed = true;
+                    if (onChange)
+                        onChange(state);
                 }
-                // su rilascio, per i bottoni non toggle resettare lo stato
-                if (!mousePressed && lastMousePressed && !isToggleButton) {
-                    isPressed = false;
+            } else if (event.type == sf::Event::KeyReleased && event.key.code == hotkey && hotkey != sf::Keyboard::Unknown && !lastKeyPressed) {
+                if (type == Type::Toggle) {
+                    state = !state;
                 }
-            } else {
-                // se il cursore esce e il pulsante viene rilasciato, resettare per non-toggle
-                if (!mousePressed && lastMousePressed && !isToggleButton) {
-                    isPressed = false;
+                else {
+                    state = true;
                 }
+                changed = true;
+                if (onChange)
+                    onChange(state);
             }
         }
-        lastKeyPressed = keyPressed == key;
-        lastMousePressed = mousePressed;
-        return clicked;
+        lastMousePressed = event.type == sf::Event::MouseButtonReleased && event.mouseButton.button == sf::Mouse::Left;
+        lastKeyPressed = event.type == sf::Event::KeyReleased && event.key.code == hotkey;
+        setColor();
+        return changed;
     }
+
+    void draw(sf::RenderWindow& window) const {
+        window.draw(shape);
+        if (labelText.getString() != "")
+            window.draw(labelText);
+        sf::Vector2f mp = window.mapPixelToCoords(sf::Mouse::getPosition(window));
+        if (contains(mp)) {
+            window.draw(hoverShape);
+        }
+
+    }
+
 
     void setColor() {
-        shape.setFillColor(!isPressed ? sf::Color::Red : sf::Color::Green);
+        shape.setFillColor(!state ? sf::Color::Red : sf::Color::Green);
     }
 
-    bool isHovered(const sf::Vector2f mousePos) const {
-        return (mousePos.x >= x && mousePos.x <= x + width
-            && mousePos.y >= y && mousePos.y <= y + height);
-    }
+    bool getState() const { return state; }
+    void setState(bool s) { state = s; }
 
-    void setIsPressed(bool pressed) { isPressed = pressed; }
+    std::string getGroup() const { return group; }
+    void setGroup(const std::string& group_) { group = group_; }
 
-    sf::RectangleShape getShape() { return shape; }
-    sf::RectangleShape getHoverShape() { return hoverShape; }
+    std::string getId() const { return id; }
 
-    float getX() const { return x; }
-    float getY() const { return y; }
-    float getWidth() const { return width; }
-    float getHeight() const { return height; }
+    void setCanBeUsed(bool b) { canBeUsed = b; }
 
-    std::string getLabel() const { return lable; }
-    bool getState() const { return isPressed; }
-    void setState(bool state) { isPressed = state; }
+
 
 };
 
